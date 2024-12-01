@@ -52,6 +52,7 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
         emit  auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
          
     }
+    
 
     function makeABid(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
         bool isOpened;
@@ -65,7 +66,10 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
             if(msg.value < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
                 revert bidPlacedIsLessThanTheCurrentHighestBid(msg.value, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             }
-
+            address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
+            uint256 previousHighestBid = auctionIdToTokenDetails[_auctionId].currentHighestBid;
+            (bool sent,) = previousHighestBidder.call{value:previousHighestBid}("");
+            require(sent,"transfer failed");
             auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
             emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
@@ -81,12 +85,16 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
       if(success) {
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
-                        emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
             return auctionIdToTokenDetails[_auctionId];
       }
 
 
     }
+
+
+
+
 
 
 function isErc721Token(address tokenAddress) public view returns(bool) {
@@ -108,6 +116,16 @@ function isErc721Token(address tokenAddress) public view returns(bool) {
 }
 
 
+
+
+
+/*************RETURN FUNCTIONS */
+
+function getAuctionDetails(uint256 _auctionId) public view returns(TokenAuctionDetails memory) {
+return auctionIdToTokenDetails[_auctionId];
+}
+
+
 function isAuctionOpen(uint256 _auctionId) public view returns(bool,uint256) {
     TokenAuctionDetails memory _tokenAuctionDetails = auctionIdToTokenDetails[_auctionId];
     if(block.timestamp > _tokenAuctionDetails.auctionEndTime) {
@@ -116,12 +134,5 @@ function isAuctionOpen(uint256 _auctionId) public view returns(bool,uint256) {
         return(true,_tokenAuctionDetails.auctionEndTime - block.timestamp);
     }
 
-}
-
-
-/*************RETURN FUNCTIONS */
-
-function getAuctionDetails(uint256 _auctionId) public view returns(TokenAuctionDetails memory) {
-return auctionIdToTokenDetails[_auctionId];
 }
 }
