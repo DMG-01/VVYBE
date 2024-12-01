@@ -49,11 +49,14 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
 error invalidAuctionId(uint256 auctionIdPassed);
 error youCannotCallThisFunction();
 error auctionIsNotOver(uint256 timeLeft);
-
+error tokenIsNotERC721(address tokenAddress);
 
 
     function createAuction(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
-        isErc721Token(tokenAddressForSale);
+        bool isERC721 = isErc721Token(tokenAddressForSale);
+        if(isERC721 == false) {
+            revert tokenIsNotERC721(tokenAddressForSale);
+        }
         address tokenOwner = ERC721(tokenAddressForSale).ownerOf(tokenId);
         if(tokenOwner != msg.sender) {
             revert invalidTokenOwner(tokenOwner, msg.sender);
@@ -162,7 +165,7 @@ function isErc721Token(address tokenAddress) public view returns(bool) {
      }
 
      try IERC165(tokenAddress).supportsInterface(ERC721_INTERFACE_ID) returns (bool result) {
-        return result;
+        return true;
         }catch {
         return false;
      }
