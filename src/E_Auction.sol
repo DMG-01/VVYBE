@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.13; 
 
-import {IERC165} from "lib/forge-std/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
-import {ERC721} from "lib/forge-std/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import {ERC20} from "lib/forge-std/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import {IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
+import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 
 
