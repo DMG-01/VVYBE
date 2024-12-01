@@ -69,8 +69,9 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
 
      if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
             revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
+            
             }
-
+        ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(address(this),amountToTransfer);
       bool success =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(msg.sender,address(this),amountToTransfer);
       if(success) {
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
