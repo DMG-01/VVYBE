@@ -1,0 +1,1 @@
+1. allows claim auction to clicked even without the highestBidder - done

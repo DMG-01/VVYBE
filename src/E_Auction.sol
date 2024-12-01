@@ -12,9 +12,18 @@ contract E_Auction {
 
 bytes4 constant ERC721_INTERFACE_ID = 0x80ac58cd;
 uint256 auctionId = 0;
+address  DEPLOYER;
+
+
+constructor() {
+    DEPLOYER = msg.sender;
+}
+
+
 
 struct TokenAuctionDetails {
     address tokenAddress;
+    address tokenSeller;
     uint256 auctionEndTime;
     uint256 startingAmount;
     uint256 tokenId;
@@ -37,6 +46,9 @@ error invalidTokenOwner(address tokenOwner, address allegedOwner);
 error noAuctionWithIdFound(uint256 allegedAuctionId);
 error bidHasClosed(uint256 timeBidClosed);
 error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentHighestBid);
+error invalidAuctionId(uint256 auctionIdPassed);
+error youCannotCallThisFunction();
+error auctionIsNotOver(uint256 timeLeft);
 
 
 
@@ -46,17 +58,19 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
         if(tokenOwner != msg.sender) {
             revert invalidTokenOwner(tokenOwner, msg.sender);
         }
-        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
+        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
         uint256 _auctionId = auctionId++;
         auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
-        emit  auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
+        ERC721(tokenAddressForSale).approve(address(this),tokenId);
+        ERC721(tokenAddressForSale).transferFrom(msg.sender,address(this),tokenId);
+        emit auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
          
     }
     
 
     function makeABid(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
-        bool isOpened;
-        (isOpened,) = isAuctionOpen(_auctionId);
+        
+        (bool isOpened,) = isAuctionOpen(_auctionId);
 
         if(isOpened == false) {
             revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
@@ -83,6 +97,11 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
         ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(address(this),amountToTransfer);
       bool success =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(msg.sender,address(this),amountToTransfer);
       if(success) {
+        address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
+        uint256 previousHighestBid = auctionIdToTokenDetails[_auctionId].currentHighestBid;
+         ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(previousHighestBidder,previousHighestBid);
+         bool returned =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(address(this),previousHighestBidder,previousHighestBid);
+         require(returned,"failed");
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
             emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
@@ -91,6 +110,42 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
 
 
     }
+
+
+function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails memory){
+
+    TokenAuctionDetails memory auctionToClaim  = auctionIdToTokenDetails[_auctionId];
+   (bool isOpened,) =  isAuctionOpen(_auctionId);
+
+   if(isOpened == true) {
+    revert auctionIsNotOver(auctionToClaim.auctionEndTime - block.timestamp);
+   }
+
+    
+    address auctionWinner = auctionToClaim.currentHighestBidder;
+    uint256 auctionAmount = auctionToClaim.currentHighestBid;
+
+    if((msg.sender != auctionWinner) || (msg.sender != DEPLOYER)) {
+        revert youCannotCallThisFunction();
+    }
+
+
+
+   ERC721(auctionToClaim.tokenAddress).approve(auctionWinner,auctionToClaim.tokenId);
+   ERC721(auctionToClaim.tokenAddress).transferFrom(address(this),auctionWinner,auctionToClaim.tokenId);
+
+   if(auctionToClaim.tokenAddress == address(0)) {
+    (bool success,) = auctionToClaim.tokenSeller.call{value:auctionAmount}("");
+    require(success, "error occured");
+    return auctionToClaim;
+   } 
+
+   ERC20(auctionToClaim.methodOfPayment).approve(auctionToClaim.tokenSeller, auctionAmount);
+   ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this),auctionToClaim.tokenSeller,auctionAmount);
+   return auctionToClaim;
+
+
+}
 
 
 
