@@ -27,7 +27,10 @@ struct TokenAuctionDetails {
 /******************MAPPINGS */
 mapping(uint256 => TokenAuctionDetails) auctionIdToTokenDetails;
 
-    // function that allows anyone to add a token to auction
+/******************EVENTS********* */
+
+event auctionPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
+event bidPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
 
 error addressIsNotAContract(address tokenAddressToCheck);
 error invalidTokenOwner(address tokenOwner, address allegedOwner);
@@ -44,8 +47,9 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
             revert invalidTokenOwner(tokenOwner, msg.sender);
         }
         TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
-        uint256 _autionId = auctionId++;
-        auctionIdToTokenDetails[_autionId] = tokenAuctionDetails;
+        uint256 _auctionId = auctionId++;
+        auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
+        emit  auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
          
     }
 
@@ -64,6 +68,7 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
 
             auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
+            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
             return auctionIdToTokenDetails[_auctionId];
         }
 
@@ -76,8 +81,8 @@ error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentH
       if(success) {
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
+                        emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
             return auctionIdToTokenDetails[_auctionId];
-
       }
 
 
