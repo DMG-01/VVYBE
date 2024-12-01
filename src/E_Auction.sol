@@ -4,6 +4,7 @@ pragma solidity 0.8.13;
 
 import {IERC165} from "lib/forge-std/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 import {ERC721} from "lib/forge-std/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {ERC20} from "lib/forge-std/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 
 
@@ -17,7 +18,9 @@ struct TokenAuctionDetails {
     uint256 auctionEndTime;
     uint256 startingAmount;
     uint256 tokenId;
-    uint256 currentAmount;
+    uint256 currentHighestBid;
+    address methodOfPayment;
+    address currentHighestBidder;
 }
 
 
@@ -29,19 +32,54 @@ mapping(uint256 => TokenAuctionDetails) auctionIdToTokenDetails;
 error addressIsNotAContract(address tokenAddressToCheck);
 error invalidTokenOwner(address tokenOwner, address allegedOwner);
 error noAuctionWithIdFound(uint256 allegedAuctionId);
+error bidHasClosed(uint256 timeBidClosed);
+error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentHighestBid);
 
 
 
-    function createAuction(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId) public {
+    function createAuction(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
         isErc721Token(tokenAddressForSale);
         address tokenOwner = ERC721(tokenAddressForSale).ownerOf(tokenId);
         if(tokenOwner != msg.sender) {
             revert invalidTokenOwner(tokenOwner, msg.sender);
         }
-        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount);
+        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
         uint256 _autionId = auctionId++;
         auctionIdToTokenDetails[_autionId] = tokenAuctionDetails;
          
+    }
+
+    function makeABid(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
+        bool isOpened;
+        (isOpened,) = isAuctionOpen(_auctionId);
+
+        if(isOpened == false) {
+            revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
+        } 
+
+        if(auctionIdToTokenDetails[_auctionId].methodOfPayment == address(0)) {
+            if(msg.value < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
+                revert bidPlacedIsLessThanTheCurrentHighestBid(msg.value, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
+            }
+
+            auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
+            auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
+            return auctionIdToTokenDetails[_auctionId];
+        }
+
+     if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
+            revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
+            }
+
+      bool success =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(msg.sender,address(this),amountToTransfer);
+      if(success) {
+        auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
+            auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
+            return auctionIdToTokenDetails[_auctionId];
+
+      }
+
+
     }
 
 
