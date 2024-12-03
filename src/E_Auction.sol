@@ -165,7 +165,7 @@ function isErc721Token(address tokenAddress) public view returns(bool) {
      }
 
      try IERC165(tokenAddress).supportsInterface(ERC721_INTERFACE_ID) returns (bool result) {
-        return true;
+        return result;
         }catch {
         return false;
      }
@@ -192,5 +192,9 @@ function isAuctionOpen(uint256 _auctionId) public view returns(bool,uint256) {
         return(true,_tokenAuctionDetails.auctionEndTime - block.timestamp);
     }
 
+} 
+
+function returnAuctionCount() public view returns(uint256) {
+    return auctionId;
 }
 }

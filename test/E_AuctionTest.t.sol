@@ -7,6 +7,7 @@ import {ERC721Mock} from "lib/openzeppelin-contracts/contracts/mocks/ERC721Mock.
 import {E_Auction} from "src/E_Auction.sol";
 import {deployScript} from "script/deployerScript.script.sol";
 import {console} from "lib/forge-std /src/console.sol";
+import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 contract E_AuctionTest is Test {
 
@@ -45,7 +46,20 @@ contract E_AuctionTest is Test {
 
     function testCreateAuctionFailsWithErc20Token() public {
         vm.startPrank(USER1);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.tokenIsNotERC721.selector),address(usdt)));
         e_auction.createAuction(AUCTION_TIME_PERIOD,address(usdt),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+    }
+
+    function testCreateAunctionFailsWithInvalidTokenOwner() public {
+        vm.startPrank(USER2);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.invalidTokenOwner.selector),USER1,USER2));
+        e_auction.createAuction(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+    }
+
+    function testCreateAuctionWorks() public {
+        vm.startPrank(USER1);
+        e_auction.createAuction(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+        assertEq(1,e_auction.returnAuctionCount());
+        assertEq(address(e_auction), ERC721(ajdNft).ownerOf(ERC721_TOKEN_ID));
     }
 }
