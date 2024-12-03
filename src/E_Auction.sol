@@ -64,7 +64,7 @@ error tokenIsNotERC721(address tokenAddress);
         TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
         uint256 _auctionId = auctionId++;
         auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
-        ERC721(tokenAddressForSale).approve(address(this),tokenId);
+       // ERC721(tokenAddressForSale).approve(address(this),tokenId);
         ERC721(tokenAddressForSale).transferFrom(msg.sender,address(this),tokenId);
         emit auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
          
