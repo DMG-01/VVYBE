@@ -17,9 +17,12 @@ contract E_AuctionTest is Test {
     ERC721Mock ajdNft;
     address USER1 = makeAddr("USER1");
     address USER2 = makeAddr("USER2");
+    address USER3 = makeAddr("USER3");
     uint256 AUCTION_TIME_PERIOD = 100;
     address ERC721_TOKEN_ADDRESS;
     uint256 ERC721_STARTING_AMOUNT = 5 ether;
+    uint256 ERC20_STARTING_BALANCE = 7 ether;
+    uint256 ERC20_LOWER_BID = 3 ether;
     uint256 ERC721_TOKEN_ID = 1;
     address ERC20_TOKEN_ADDRESS;
 
@@ -33,14 +36,24 @@ contract E_AuctionTest is Test {
     usdt = new ERC20Mock("USDT", "USDT", address(this), 1000e18);
     console.log("ERC20Mock deployed");
 
+    usdt.mint(USER2,ERC20_STARTING_BALANCE);
+
     ajdNft = new ERC721Mock("anjolaDaveNFT", "AJDNFT");
     console.log("ERC721Mock deployed");
 
     ajdNft.mint(USER1, ERC721_TOKEN_ID);
     console.log("ERC721 Token minted");
     
+   
     ERC721_TOKEN_ADDRESS = address(ajdNft);
     ERC20_TOKEN_ADDRESS = address(usdt);
+}
+
+modifier auctionCreated {
+vm.startPrank(USER1);
+         ERC721(ajdNft).approve(address(e_auction),ERC721_TOKEN_ID);
+        e_auction.createAuction(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+        _;
 }
 
 
@@ -56,10 +69,76 @@ contract E_AuctionTest is Test {
         e_auction.createAuction(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
     }
 
-    function testCreateAuctionWorks() public {
-        vm.startPrank(USER1);
-        e_auction.createAuction(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+    function testCreateAuctionWorks() auctionCreated public {
+        
         assertEq(1,e_auction.returnAuctionCount());
         assertEq(address(e_auction), ERC721(ajdNft).ownerOf(ERC721_TOKEN_ID));
     }
+
+    function testMakeABidRevertsWhenAuctionIsClosed() public auctionCreated {
+      vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 5);
+       vm.startPrank(USER2);
+       usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+       vm.expectRevert(abi.encodeWithSelector((E_Auction.bidHasClosed.selector),AUCTION_TIME_PERIOD+1));
+       e_auction.makeABid(0,ERC20_STARTING_BALANCE);
+    }
+
+    function testMakeASuccessfulBid() public auctionCreated {
+        
+        vm.startPrank(USER2);
+
+        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+
+        e_auction.makeABid(0, ERC20_STARTING_BALANCE);
+
+        
+        (bool isOpen, ) = e_auction.isAuctionOpen(0);
+        assertTrue(isOpen, "Auction should still be open");
+
+        E_Auction.TokenAuctionDetails memory auctionDetails = e_auction.getAuctionDetails(0);
+
+        assertEq(auctionDetails.currentHighestBid, ERC20_STARTING_BALANCE, "Current highest bid should match the bid placed");
+        assertEq(auctionDetails.currentHighestBidder, USER2, "Current highest bidder should be USER2");
+    }
+
+    function testmakeABidRevertsWithLowerBid() public auctionCreated {
+        vm.startPrank(USER2);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.bidPlacedIsLessThanTheCurrentHighestBid.selector),ERC20_LOWER_BID,ERC721_STARTING_AMOUNT));
+        e_auction.makeABid(0,ERC20_LOWER_BID);
+    }
+    
+
+    function testClaimAuctionRevertsWhenAuctionIsStillOpened() public auctionCreated{
+        vm.startPrank(USER2);
+        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+        e_auction.makeABid(0, ERC20_STARTING_BALANCE);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.auctionIsNotOver.selector),AUCTION_TIME_PERIOD ));
+        e_auction.claimAuction(0);
+    }
+
+    function testClaimAuctionRevertsWithInvalidCaller() public auctionCreated  {
+        vm.startPrank(USER2);
+        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+        e_auction.makeABid(0, ERC20_STARTING_BALANCE);
+        vm.stopPrank();
+        vm.startPrank(USER3);
+        vm.warp(AUCTION_TIME_PERIOD + 2);
+        vm.expectRevert(E_Auction.youCannotCallThisFunction.selector);
+        e_auction.claimAuction(0);
+    }
+
+
+    function testClaimAuctionWorks() public auctionCreated   {
+        vm.startPrank(USER2);
+        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+        e_auction.makeABid(0, ERC20_STARTING_BALANCE);
+        vm.warp(AUCTION_TIME_PERIOD + 2);
+        e_auction.claimAuction(0);
+
+        assertEq()
+    }
+
+
+
+
 }
