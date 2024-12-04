@@ -8,6 +8,7 @@ import {E_Auction} from "src/E_Auction.sol";
 import {deployScript} from "script/deployerScript.script.sol";
 import {console} from "lib/forge-std /src/console.sol";
 import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 contract E_AuctionTest is Test {
 
@@ -131,12 +132,22 @@ vm.startPrank(USER1);
     function testClaimAuctionWorks() public auctionCreated   {
         vm.startPrank(USER2);
         usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+        usdt.approve(USER1, ERC20_STARTING_BALANCE);
         e_auction.makeABid(0, ERC20_STARTING_BALANCE);
         vm.warp(AUCTION_TIME_PERIOD + 2);
+       // vm.startPrank(address(e_auction));
+        vm.startPrank(address(e_auction));
+        usdt.approve(USER2,type(uint256).max);
+        vm.stopPrank();
+        vm.startPrank(USER2);
         e_auction.claimAuction(0);
+        
 
-        assertEq()
+        assertEq(ERC20_STARTING_BALANCE,ERC20(usdt).balanceOf(USER1));
     }
+
+
+    //test previousBidder money gets transferedBack
 
 
 

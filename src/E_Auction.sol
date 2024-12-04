@@ -107,7 +107,7 @@ error tokenIsNotERC721(address tokenAddress);
          require(returned,"failed");
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
-            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]); // add the address 
             return auctionIdToTokenDetails[_auctionId];
       }
 
@@ -130,7 +130,7 @@ function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails mem
     address auctionWinner = auctionToClaim.currentHighestBidder;
     uint256 auctionAmount = auctionToClaim.currentHighestBid;
 
-    if((msg.sender != auctionWinner) || (msg.sender != DEPLOYER)) {
+    if(msg.sender != auctionWinner) {
         revert youCannotCallThisFunction();
     }
 
@@ -145,8 +145,9 @@ function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails mem
     return auctionToClaim;
    } 
 
-   ERC20(auctionToClaim.methodOfPayment).approve(auctionToClaim.tokenSeller, auctionAmount);
+   ERC20(auctionToClaim.methodOfPayment).approve(auctionToClaim.tokenSeller, type(uint256).max);
    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this),auctionToClaim.tokenSeller,auctionAmount);
+   //emit an event
    return auctionToClaim;
 
 
