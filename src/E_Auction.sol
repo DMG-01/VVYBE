@@ -50,6 +50,7 @@ error invalidAuctionId(uint256 auctionIdPassed);
 error youCannotCallThisFunction();
 error auctionIsNotOver(uint256 timeLeft);
 error tokenIsNotERC721(address tokenAddress);
+error invalidMethodOfPayment(address methodOfPayment);
 
 
     function createAuction(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
@@ -71,7 +72,7 @@ error tokenIsNotERC721(address tokenAddress);
     }
     
 
-    function makeABid(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
+    function makeABidWithERC20Token(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
         
         (bool isOpened,) = isAuctionOpen(_auctionId);
 
@@ -79,20 +80,7 @@ error tokenIsNotERC721(address tokenAddress);
             revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
         } 
 
-        if(auctionIdToTokenDetails[_auctionId].methodOfPayment == address(0)) {
-            if(msg.value < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
-                revert bidPlacedIsLessThanTheCurrentHighestBid(msg.value, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
-            }
-            address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
-            uint256 previousHighestBid = auctionIdToTokenDetails[_auctionId].currentHighestBid;
-            (bool sent,) = previousHighestBidder.call{value:previousHighestBid}("");
-            require(sent,"transfer failed");
-            auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
-            auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
-            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
-            return auctionIdToTokenDetails[_auctionId];
-        }
-
+if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
      if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
             revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             
@@ -112,6 +100,36 @@ error tokenIsNotERC721(address tokenAddress);
       }
 
 
+    }else {
+       revert invalidMethodOfPayment(auctionIdToTokenDetails[_auctionId].methodOfPayment);
+    }
+
+    } 
+
+    function makeABidWithNativeEther(uint256 _auctionId) public payable returns(TokenAuctionDetails memory) {
+        (bool isOpened,) = isAuctionOpen(_auctionId);
+
+        if(isOpened == false) {
+            revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
+        }
+
+        if(auctionIdToTokenDetails[_auctionId].methodOfPayment == address(0)) {
+            if(msg.value < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
+                revert bidPlacedIsLessThanTheCurrentHighestBid(msg.value, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
+            }
+            address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
+            uint256 previousHighestBid = auctionIdToTokenDetails[_auctionId].currentHighestBid;
+            (bool sent,) = previousHighestBidder.call{value:previousHighestBid}("");
+            require(sent,"transfer failed");
+            auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
+            auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
+            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+            emit  bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+            return auctionIdToTokenDetails[_auctionId];
+
+        }else {
+            revert invalidMethodOfPayment(auctionIdToTokenDetails[_auctionId].methodOfPayment);
+        }
     }
 
 
