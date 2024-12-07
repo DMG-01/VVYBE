@@ -80,17 +80,19 @@ error invalidMethodOfPayment(address methodOfPayment);
             revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
         } 
 
+       
 if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
      if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
             revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             
             }
-        ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(address(this),amountToTransfer);
+             require(ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(address(this), amountToTransfer),"NO TRANSFER MADE");
+      
       bool success =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(msg.sender,address(this),amountToTransfer);
       if(success) {
         address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
         uint256 previousHighestBid = auctionIdToTokenDetails[_auctionId].currentHighestBid;
-         ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).approve(previousHighestBidder,previousHighestBid);
+         
          bool returned =   ERC20(auctionIdToTokenDetails[_auctionId].methodOfPayment).transferFrom(address(this),previousHighestBidder,previousHighestBid);
          require(returned,"failed");
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
@@ -124,7 +126,6 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
             auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
             emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
-            emit  bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
             return auctionIdToTokenDetails[_auctionId];
 
         }else {
