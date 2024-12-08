@@ -39,7 +39,7 @@ mapping(uint256 => TokenAuctionDetails) auctionIdToTokenDetails;
 /******************EVENTS********* */
 
 event auctionPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
-event bidPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
+event bidPlaced(uint256 _auctionId,address callerAddress,TokenAuctionDetails _tokenAuctionDetails);
 
 error addressIsNotAContract(address tokenAddressToCheck);
 error invalidTokenOwner(address tokenOwner, address allegedOwner);
@@ -110,7 +110,7 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
          require(returned,"failed");
         auctionIdToTokenDetails[_auctionId].currentHighestBid = amountToTransfer; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
-            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]); // add the address 
+            emit bidPlaced(_auctionId,msg.sender,auctionIdToTokenDetails[_auctionId]);  
             return auctionIdToTokenDetails[_auctionId];
       }
 
@@ -138,7 +138,7 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
             require(sent,"transfer failed");
             auctionIdToTokenDetails[_auctionId].currentHighestBid = msg.value; 
             auctionIdToTokenDetails[_auctionId].currentHighestBidder = msg.sender;
-            emit bidPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+            emit bidPlaced(_auctionId,msg.sender,auctionIdToTokenDetails[_auctionId]);
             return auctionIdToTokenDetails[_auctionId];
 
         }else {
