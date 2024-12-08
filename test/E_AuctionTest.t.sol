@@ -147,6 +147,8 @@ vm.startPrank(USER1);
     }
 
 
+    function testWhenNoOneBuysTheToken() public {}
+
     //test previousBidder money gets transferedBack
 
 

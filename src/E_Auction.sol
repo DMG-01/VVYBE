@@ -60,7 +60,7 @@ error invalidMethodOfPayment(address methodOfPayment);
         }
          require(ERC721(tokenAddressForSale).getApproved(tokenId) == address(this), "CONTRACT NOT APPROVED TO SPEND TOKEN");
         ERC721(tokenAddressForSale).transferFrom(msg.sender, address(this), tokenId);
-        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
+        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,0,methodOfPayment,msg.sender);
         uint256 _auctionId = auctionId++;
         auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
         emit auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
@@ -77,7 +77,7 @@ error invalidMethodOfPayment(address methodOfPayment);
 
         require(ERC721(tokenAddressForSale).getApproved(tokenId) == address(this), "CONTRACT NOT APPROVED TO SPEND TOKEN");
         ERC721(tokenAddressForSale).transferFrom(msg.sender, address(this), tokenId);
-        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,address(0),msg.sender);
+        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,0,address(0),msg.sender);
         uint256 _auctionId = auctionId++;
         auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
         emit auctionPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
