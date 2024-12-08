@@ -53,22 +53,35 @@ error tokenIsNotERC721(address tokenAddress);
 error invalidMethodOfPayment(address methodOfPayment);
 
 
-    function createAuction(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
+    function createAuctionWithErc20Token(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
         bool isERC721 = isErc721Token(tokenAddressForSale);
         if(isERC721 == false) {
             revert tokenIsNotERC721(tokenAddressForSale);
         }
-        address tokenOwner = ERC721(tokenAddressForSale).ownerOf(tokenId);
-        if(tokenOwner != msg.sender) {
-            revert invalidTokenOwner(tokenOwner, msg.sender);
-        }
+         require(ERC721(tokenAddressForSale).getApproved(tokenId) == address(this), "CONTRACT NOT APPROVED TO SPEND TOKEN");
+        ERC721(tokenAddressForSale).transferFrom(msg.sender, address(this), tokenId);
         TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,methodOfPayment,msg.sender);
         uint256 _auctionId = auctionId++;
         auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
-       // ERC721(tokenAddressForSale).approve(address(this),tokenId);
-        ERC721(tokenAddressForSale).transferFrom(msg.sender,address(this),tokenId);
         emit auctionPlaced(_auctionId, auctionIdToTokenDetails[_auctionId]);
          
+    }
+
+
+    function createAuctionWithNativeEther(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId) public {
+        bool isErc721 = isErc721Token(tokenAddressForSale);
+
+        if(isErc721 == false) {
+            revert tokenIsNotERC721(tokenAddressForSale);
+        }
+
+        require(ERC721(tokenAddressForSale).getApproved(tokenId) == address(this), "CONTRACT NOT APPROVED TO SPEND TOKEN");
+        ERC721(tokenAddressForSale).transferFrom(msg.sender, address(this), tokenId);
+        TokenAuctionDetails memory tokenAuctionDetails = TokenAuctionDetails(tokenAddressForSale,msg.sender,block.timestamp + auctionTimePeriod,startingAmount,tokenId,startingAmount,address(0),msg.sender);
+        uint256 _auctionId = auctionId++;
+        auctionIdToTokenDetails[_auctionId] = tokenAuctionDetails;
+        emit auctionPlaced(_auctionId,auctionIdToTokenDetails[_auctionId]);
+
     }
     
 
