@@ -40,6 +40,7 @@ mapping(uint256 => TokenAuctionDetails) auctionIdToTokenDetails;
 
 event auctionPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
 event bidPlaced(uint256 _auctionId,address callerAddress,TokenAuctionDetails _tokenAuctionDetails);
+event auctionClaimed(address callerAddress, uint256 timeOfClaim, uint256 _auctionId, TokenAuctionDetails);
 
 error addressIsNotAContract(address tokenAddressToCheck);
 error invalidTokenOwner(address tokenOwner, address allegedOwner);
@@ -161,6 +162,7 @@ function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails mem
     
     address auctionWinner = auctionToClaim.currentHighestBidder;
     uint256 auctionAmount = auctionToClaim.currentHighestBid;
+    emit auctionClaimed(msg.sender,block.timestamp,_auctionId,auctionToClaim);
 
     if(msg.sender != auctionWinner) {
         revert youCannotCallThisFunction();
