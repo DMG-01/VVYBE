@@ -162,12 +162,15 @@ function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails mem
     
     address auctionWinner = auctionToClaim.currentHighestBidder;
     uint256 auctionAmount = auctionToClaim.currentHighestBid;
-    emit auctionClaimed(msg.sender,block.timestamp,_auctionId,auctionToClaim);
+   
 
     if(msg.sender != auctionWinner) {
         revert youCannotCallThisFunction();
     }
 
+    if(msg.sender != DEPLOYER) {
+        revert youCannotCallThisFunction();
+    }
 
 
    ERC721(auctionToClaim.tokenAddress).approve(auctionWinner,auctionToClaim.tokenId);
@@ -181,7 +184,7 @@ function claimAuction(uint256 _auctionId) public returns(TokenAuctionDetails mem
 
    ERC20(auctionToClaim.methodOfPayment).approve(auctionToClaim.tokenSeller, type(uint256).max);
    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this),auctionToClaim.tokenSeller,auctionAmount);
-   //emit an event
+    emit auctionClaimed(msg.sender,block.timestamp,_auctionId,auctionToClaim);
    return auctionToClaim;
 
 
