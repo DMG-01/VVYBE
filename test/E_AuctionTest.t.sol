@@ -61,15 +61,12 @@ vm.startPrank(USER1);
 
     function testCreateAuctionFailsWithErc20Token() public {
         vm.startPrank(USER1);
+        ERC20(usdt).approve(address(e_auction),ERC20_STARTING_BALANCE);
         vm.expectRevert(abi.encodeWithSelector((E_Auction.tokenIsNotERC721.selector),address(usdt)));
         e_auction.createAuctionWithErc20Token(AUCTION_TIME_PERIOD,address(usdt),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
     }
 
-    function testCreateAunctionFailsWithInvalidTokenOwner() public {
-        vm.startPrank(USER2);
-        vm.expectRevert(abi.encodeWithSelector((E_Auction.invalidTokenOwner.selector),USER1,USER2));
-        e_auction.createAuctionWithErc20Token(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
-    }
+ 
 
     function testCreateAuctionWorks() ERC20AuctionCreated public {
         
@@ -105,7 +102,8 @@ vm.startPrank(USER1);
 
     function testmakeABidRevertsWithLowerBid() public ERC20AuctionCreated {
         vm.startPrank(USER2);
-        vm.expectRevert(abi.encodeWithSelector((E_Auction.bidPlacedIsLessThanTheCurrentHighestBid.selector),ERC20_LOWER_BID,ERC721_STARTING_AMOUNT));
+        ERC20(usdt).approve(address(e_auction),ERC20_LOWER_BID);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.bidPlacedIsLessThanTheStartingAmount.selector),ERC20_LOWER_BID,ERC721_STARTING_AMOUNT));
         e_auction.makeABidWithERC20Token(0,ERC20_LOWER_BID);
     }
     

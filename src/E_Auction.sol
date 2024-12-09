@@ -47,6 +47,7 @@ error invalidTokenOwner(address tokenOwner, address allegedOwner);
 error noAuctionWithIdFound(uint256 allegedAuctionId);
 error bidHasClosed(uint256 timeBidClosed);
 error bidPlacedIsLessThanTheCurrentHighestBid(uint256 bidPlaced,uint256 currentHighestBid);
+error bidPlacedIsLessThanTheStartingAmount(uint256 bidPlaced, uint256  startingAmount);
 error invalidAuctionId(uint256 auctionIdPassed);
 error youCannotCallThisFunction();
 error auctionIsNotOver(uint256 timeLeft);
@@ -96,6 +97,8 @@ error invalidMethodOfPayment(address methodOfPayment);
 
        
 if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
+    if(amountToTransfer >= auctionIdToTokenDetails[_auctionId].startingAmount) {
+
      if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
             revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             
@@ -115,11 +118,14 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
             return auctionIdToTokenDetails[_auctionId];
       }
 
-
-    }else {
+    else {
        revert invalidMethodOfPayment(auctionIdToTokenDetails[_auctionId].methodOfPayment);
     }
+} else {
+    revert  bidPlacedIsLessThanTheStartingAmount(amountToTransfer,auctionIdToTokenDetails[_auctionId].startingAmount);
+}
 
+}
     } 
 
     function makeABidWithNativeEther(uint256 _auctionId) public payable returns(TokenAuctionDetails memory) {
