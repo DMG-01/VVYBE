@@ -207,6 +207,18 @@ modifier NativeEtherAuctionCreated  {
 
     }
 
+
+    function testAddAdmin() public {
+
+    }
+
+    function testRemoveAdmin() public {
+
+    }
+
+    function testRemoveInitialDeployerAsAdminReverts() public {
+        
+    } 
     //test previousBidder money gets transferedBack
 
 

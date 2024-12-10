@@ -13,10 +13,12 @@ contract E_Auction {
 bytes4 constant ERC721_INTERFACE_ID = 0x80ac58cd;
 uint256 auctionId = 0;
 address  DEPLOYER;
+uint256 auctionFee;
 
 
 constructor() {
     DEPLOYER = msg.sender;
+    adminAddress[msg.sender] = true;
 }
 
 
@@ -35,6 +37,7 @@ struct TokenAuctionDetails {
 
 /******************MAPPINGS */
 mapping(uint256 => TokenAuctionDetails) auctionIdToTokenDetails;
+mapping(address => bool) adminAddress;
 
 /******************EVENTS********* */
 
@@ -54,6 +57,15 @@ error auctionIsNotOver(uint256 timeLeft);
 error tokenIsNotERC721(address tokenAddress);
 error invalidMethodOfPayment(address methodOfPayment);
 error youCannotBidWithErc20Token();
+error onlyAdminCanCallThisFunction();
+error youCannotRemoveInitialDeployerFromAdmin();
+
+modifier isAdmin {
+    if(adminAddress[msg.sender] != true) {
+        revert onlyAdminCanCallThisFunction();
+    }
+    _;
+} 
 
 
     function createAuctionWithErc20Token(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
@@ -193,10 +205,17 @@ function claimAuction(uint256 _auctionId) public returns (TokenAuctionDetails me
     return auctionToClaim;
 }
 
+function addAdmin(address addressToMakeAdmin) isAdmin public {
 
+adminAddress[addressToMakeAdmin] = true;
+}
 
-
-
+function removeAdmin(address addressOfAdminToRemove) isAdmin public {
+    if(addressOfAdminToRemove == DEPLOYER) {
+        revert youCannotRemoveInitialDeployerFromAdmin();
+    }
+    adminAddress[addressOfAdminToRemove] = false;
+}
 
 
 function isErc721Token(address tokenAddress) public view returns(bool) {
@@ -244,5 +263,9 @@ function returnAuctionCount() public view returns(uint256) {
 
 function ownerOf(address tokenAddress, uint256 tokenId) public view returns(address) {
     return(ERC721(tokenAddress).ownerOf(tokenId));
+}
+
+function returnInitialDeloyer () public view returns(address) {
+    return DEPLOYER;
 }
 }
