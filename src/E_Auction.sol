@@ -242,5 +242,7 @@ function returnAuctionCount() public view returns(uint256) {
     return auctionId;
 }
 
-function 
+function ownerOf(address tokenAddress, uint256 tokenId) public view returns(address) {
+    return(ERC721(tokenAddress).ownerOf(tokenId));
+}
 }

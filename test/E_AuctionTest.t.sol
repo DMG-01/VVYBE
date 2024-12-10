@@ -176,11 +176,16 @@ modifier NativeEtherAuctionCreated  {
 
     function testWhenNoOneBuysTheToken() public ERC20AuctionCreated{
         vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 2);
+        address ownerOf = e_auction.ownerOf(address(ajdNft),ERC721_TOKEN_ID);
+        console.log(ownerOf);
         vm.startPrank(USER1);
         e_auction.claimAuction(0);
+        address ownerOfII = e_auction.ownerOf(address(ajdNft),ERC721_TOKEN_ID);
+        console.log(ownerOfII);
+
     }
 
-    function testPreviousBidderTokenIsReturned() public {
+    function testPreviousBidderTokenIsReturned() public ERC20AuctionCreated{
 
     }
 
