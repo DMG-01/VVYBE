@@ -13,7 +13,8 @@ contract E_Auction {
 bytes4 constant ERC721_INTERFACE_ID = 0x80ac58cd;
 uint256 auctionId = 0;
 address  DEPLOYER;
-uint256 auctionFee;
+uint8 auctionFeePercentage;
+
 
 
 constructor() {
@@ -183,6 +184,7 @@ function claimAuction(uint256 _auctionId) public returns (TokenAuctionDetails me
     address tokenSeller = auctionToClaim.tokenSeller;
     uint256 auctionAmount = auctionToClaim.currentHighestBid;
 
+    uint256 auctionAmountAfterFee =  ((uint256(auctionFeePercentage)*auctionAmount)/100);
     
     if (msg.sender != auctionWinner && msg.sender != DEPLOYER && msg.sender != tokenSeller) {
         revert youCannotCallThisFunction();
@@ -199,7 +201,7 @@ function claimAuction(uint256 _auctionId) public returns (TokenAuctionDetails me
     }
 
     ERC20(auctionToClaim.methodOfPayment).approve(tokenSeller, type(uint256).max);
-    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this), tokenSeller, auctionAmount);
+    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this), tokenSeller, auctionAmountAfterFee);
 
     emit auctionClaimed(msg.sender, block.timestamp, _auctionId, auctionToClaim);
     return auctionToClaim;
@@ -271,5 +273,9 @@ function returnInitialDeloyer () public view returns(address) {
 
 function checkIsAdmin(address addressToCheck) public view returns(bool) {
     return adminAddress[addressToCheck];
+}
+
+function returnAuctionFeePercentage() public view returns(uint8) {
+return auctionFeePercentage;
 }
 }
