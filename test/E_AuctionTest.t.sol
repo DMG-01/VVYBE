@@ -19,6 +19,7 @@ contract E_AuctionTest is Test {
     address USER1 = makeAddr("USER1");
     address USER2 = makeAddr("USER2");
     address USER3 = makeAddr("USER3");
+    address USER4 = makeAddr("USER4");
     uint256 AUCTION_TIME_PERIOD = 100;
     address ERC721_TOKEN_ADDRESS;
     uint256 ERC721_STARTING_AMOUNT = 5 ether;
@@ -38,6 +39,7 @@ contract E_AuctionTest is Test {
     console.log("ERC20Mock deployed");
 
     usdt.mint(USER2,ERC20_STARTING_BALANCE);
+    usdt.mint(USER4,ERC20_STARTING_BALANCE);
 
     ajdNft = new ERC721Mock("anjolaDaveNFT", "AJDNFT");
     console.log("ERC721Mock deployed");
@@ -186,6 +188,22 @@ modifier NativeEtherAuctionCreated  {
     }
 
     function testPreviousBidderTokenIsReturned() public ERC20AuctionCreated{
+        vm.startPrank(USER2);
+        ERC20(usdt).approve(address(e_auction),ERC721_STARTING_AMOUNT);
+        e_auction.makeABidWithERC20Token(0,ERC721_STARTING_AMOUNT);
+        uint256 user2BalanceAfterBid = ERC20(usdt).balanceOf(USER2);
+        assertEq(ERC20_STARTING_BALANCE - ERC721_STARTING_AMOUNT,user2BalanceAfterBid);
+        vm.stopPrank();
+        vm.startPrank(USER4);
+        ERC20(usdt).approve(address(e_auction),ERC20_STARTING_BALANCE);
+        e_auction.makeABidWithERC20Token(0,ERC20_STARTING_BALANCE);
+        uint256 user4BalanceAfterBid = ERC20(usdt).balanceOf(USER4);
+        assertEq(0,user4BalanceAfterBid);
+        assertEq(ERC20_STARTING_BALANCE,ERC20(usdt).balanceOf(address(e_auction)));
+        uint256 user2BalanceAfterUser4Bid = ERC20(usdt).balanceOf(USER2);
+        assertEq(user2BalanceAfterBid + ERC721_STARTING_AMOUNT,user2BalanceAfterUser4Bid);
+
+
 
     }
 
