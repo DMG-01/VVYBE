@@ -53,6 +53,7 @@ error youCannotCallThisFunction();
 error auctionIsNotOver(uint256 timeLeft);
 error tokenIsNotERC721(address tokenAddress);
 error invalidMethodOfPayment(address methodOfPayment);
+error youCannotBidWithErc20Token();
 
 
     function createAuctionWithErc20Token(uint256 auctionTimePeriod, address tokenAddressForSale, uint256 startingAmount, uint256 tokenId, address methodOfPayment) public {
@@ -87,7 +88,7 @@ error invalidMethodOfPayment(address methodOfPayment);
     }
     
 
-    function makeABidWithERC20Token(uint256 _auctionId, uint256 amountToTransfer) public payable returns(TokenAuctionDetails memory) {
+    function makeABidWithERC20Token(uint256 _auctionId, uint256 amountToTransfer) public returns(TokenAuctionDetails memory) {
         
         (bool isOpened,) = isAuctionOpen(_auctionId);
 
@@ -125,6 +126,8 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
     revert  bidPlacedIsLessThanTheStartingAmount(amountToTransfer,auctionIdToTokenDetails[_auctionId].startingAmount);
 }
 
+}else {
+    revert youCannotBidWithErc20Token();
 }
     } 
 
@@ -238,4 +241,6 @@ function isAuctionOpen(uint256 _auctionId) public view returns(bool,uint256) {
 function returnAuctionCount() public view returns(uint256) {
     return auctionId;
 }
+
+function 
 }

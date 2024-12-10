@@ -58,12 +58,40 @@ vm.startPrank(USER1);
         _;
 }
 
+modifier NativeEtherAuctionCreated  {
+    vm.startPrank(USER1);
+    ERC721(ajdNft).approve(address(e_auction),ERC721_TOKEN_ID);
+    e_auction.createAuctionWithNativeEther(AUCTION_TIME_PERIOD,address(ajdNft),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID);
+    vm.stopPrank();
+    _;
+}
+
 
     function testCreateAuctionFailsWithErc20Token() public {
         vm.startPrank(USER1);
         ERC20(usdt).approve(address(e_auction),ERC20_STARTING_BALANCE);
         vm.expectRevert(abi.encodeWithSelector((E_Auction.tokenIsNotERC721.selector),address(usdt)));
         e_auction.createAuctionWithErc20Token(AUCTION_TIME_PERIOD,address(usdt),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID,address(usdt));
+    }
+
+    function testCreateAuctionWithNativeEtherFailsWithErc20Token() public {
+        vm.startPrank(USER1);
+        ERC20(usdt).approve(address(e_auction),ERC20_STARTING_BALANCE);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.tokenIsNotERC721.selector),address(usdt)));
+        e_auction.createAuctionWithNativeEther(AUCTION_TIME_PERIOD,address(usdt),ERC721_STARTING_AMOUNT,ERC721_TOKEN_ID);
+    }
+
+    function testMakeABidRevertsWhenAuctionIsCreatedWithNativeEtherAndBidIsPlacedWithERC20Token() NativeEtherAuctionCreated public {
+        vm.startPrank(USER2);
+        ERC20(usdt).approve(address(e_auction),ERC20_STARTING_BALANCE);
+        vm.expectRevert(E_Auction.youCannotBidWithErc20Token.selector);
+        e_auction.makeABidWithERC20Token(0,ERC20_STARTING_BALANCE);
+    }
+
+    function testMakeABidWithNativeEtherRevertsWhenAuctionIsCreatedWithErc20Token() ERC20AuctionCreated public {
+        vm.startPrank(USER2);
+        vm.expectRevert(abi.encodeWithSelector((E_Auction.invalidMethodOfPayment.selector),ERC20_TOKEN_ADDRESS));
+        e_auction.makeABidWithNativeEther(0);
     }
 
  
@@ -146,7 +174,15 @@ vm.startPrank(USER1);
     }
 
 
-    function testWhenNoOneBuysTheToken() public {}
+    function testWhenNoOneBuysTheToken() public ERC20AuctionCreated{
+        vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 2);
+        vm.startPrank(USER1);
+        e_auction.claimAuction(0);
+    }
+
+    function testPreviousBidderTokenIsReturned() public {
+
+    }
 
     //test previousBidder money gets transferedBack
 
