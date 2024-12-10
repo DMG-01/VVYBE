@@ -209,16 +209,36 @@ modifier NativeEtherAuctionCreated  {
 
 
     function testAddAdmin() public {
-
+        address contractDeployer = e_auction.returnInitialDeloyer();
+        vm.startPrank(contractDeployer);
+        e_auction.addAdmin(USER3);
+        assertEq(true,e_auction.checkIsAdmin(USER3));
     }
 
     function testRemoveAdmin() public {
-
+       address contractDeployer = e_auction.returnInitialDeloyer();
+        vm.startPrank(contractDeployer);
+        e_auction.addAdmin(USER3);
+        assertEq(true,e_auction.checkIsAdmin(USER3));
+        e_auction.removeAdmin(USER3);
+        assertEq(false,e_auction.checkIsAdmin(USER3));
     }
 
     function testRemoveInitialDeployerAsAdminReverts() public {
-        
+        address contractDeployer = e_auction.returnInitialDeloyer();
+        vm.startPrank(contractDeployer);
+        e_auction.addAdmin(USER3);
+        vm.stopPrank();
+        vm.startPrank(USER3);
+        vm.expectRevert(E_Auction.youCannotRemoveInitialDeployerFromAdmin.selector);
+        e_auction.removeAdmin(contractDeployer);
     } 
+
+    function testOnlyAdminCanCallSpecificFunction() public {
+        vm.startPrank(USER3);
+        vm.expectRevert(E_Auction.onlyAdminCanCallThisFunction.selector);
+        e_auction.addAdmin(USER2);
+    }
     //test previousBidder money gets transferedBack
 
 

@@ -268,4 +268,8 @@ function ownerOf(address tokenAddress, uint256 tokenId) public view returns(addr
 function returnInitialDeloyer () public view returns(address) {
     return DEPLOYER;
 }
+
+function checkIsAdmin(address addressToCheck) public view returns(bool) {
+    return adminAddress[addressToCheck];
+}
 }
