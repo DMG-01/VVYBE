@@ -7,7 +7,7 @@
 
  contract NFT is ERC721 {
 
-
+    address owner;
 
     /**********EVENTS ****/
     event newTokenMinted(address mintedTo,uint256 tokenId,string tokenUri, uint256 timeOfMint);
@@ -19,25 +19,25 @@
     /*************ERRORS */
 
     error tokenPropertiesIsNotEqualToTokenLength(uint256 propertiesLength, uint256 valuesLength);
+    error onlyOwnerCanCallThisFunction();
 
 
-constructor(
-    string memory name,
-    string memory symbol
-)ERC721(name,symbol) {
-    
+constructor(string memory _name, string memory _symbol, address _owner) ERC721(_name, _symbol) {
+    owner = _owner;
 }
 
-uint256 tokenId = 0;
 
 
 
-function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues) public  returns(uint256, string memory){
-    uint256  nftTokenId =  tokenId++;
+
+function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) public  returns(uint256, string memory){
+
+    if(msg.sender != owner) {
+        revert onlyOwnerCanCallThisFunction();
+    }
     string memory _tokenURI = generateUri(tokenProperties,tokenValues);
     tokenIdToURI[nftTokenId] = _tokenURI;
     _mint(addressToMintTo, nftTokenId);
-    tokenIdToURI[nftTokenId] = _tokenURI;
 
     emit newTokenMinted(addressToMintTo,nftTokenId,_tokenURI,block.timestamp);
     return(nftTokenId,_tokenURI);
@@ -82,6 +82,10 @@ function tokenURI(uint256 _tokenId) public view override returns(string memory )
     return tokenIdToURI[_tokenId];
 }
 
+
+function returnNftOwner() public view returns(address) {
+    return owner;
+}
 
 
  }
