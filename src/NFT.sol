@@ -5,7 +5,7 @@
  import {Base64} from "lib/openzeppelin-contracts/contracts/utils/Base64.sol";
  import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
- contract NFT is ERC721 {
+ abstract contract NFT is ERC721 {
 
     address owner;
 
