@@ -30,7 +30,7 @@ constructor(string memory _name, string memory _symbol, address _owner) ERC721(_
 
 
 
-function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) public  returns(uint256, string memory){
+function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) external  returns(uint256, string memory){
 
     if(msg.sender != owner) {
         revert onlyOwnerCanCallThisFunction();
