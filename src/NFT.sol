@@ -34,13 +34,13 @@ uint256 tokenId = 0;
 
 function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues) public  returns(uint256, string memory){
     uint256  nftTokenId =  tokenId++;
-    string memory tokenURI = generateUri(tokenProperties,tokenValues);
-    tokenIdToURI[nftTokenId] = tokenURI;
+    string memory _tokenURI = generateUri(tokenProperties,tokenValues);
+    tokenIdToURI[nftTokenId] = _tokenURI;
     _mint(addressToMintTo, nftTokenId);
-    tokenIdToURI[nftTokenId] = tokenURI;
+    tokenIdToURI[nftTokenId] = _tokenURI;
 
-    emit newTokenMinted(addressToMintTo,nftTokenId,tokenURI,block.timestamp);
-    return(nftTokenId,tokenURI);
+    emit newTokenMinted(addressToMintTo,nftTokenId,_tokenURI,block.timestamp);
+    return(nftTokenId,_tokenURI);
 }
 
 
