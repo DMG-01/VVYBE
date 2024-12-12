@@ -8,13 +8,14 @@ import { NFTDeployer} from "src/nftDeployer.sol";
 
 contract deployScript is Script {
 
-    function run() external returns(E_Auction,NFTDeployer) {
+    function run() external returns(E_Auction,NFT,NFTDeployer) {
         vm.startBroadcast();
        E_Auction e_auction = new E_Auction();
+       NFT nft = new NFT("MIMI","MIMI",msg.sender);
        NFTDeployer nftDeployer = new NFTDeployer();
        
         vm.stopBroadcast();
-        return (e_auction,nftDeployer);
+        return (e_auction,nft,nftDeployer);
 
 
     }
