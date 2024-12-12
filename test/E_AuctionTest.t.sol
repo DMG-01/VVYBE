@@ -31,7 +31,9 @@ contract E_AuctionTest is Test {
 
     function setUp() public {
     console.log("Starting setUp...");
-    e_auction = new E_Auction();
+    //e_auction = new E_Auction();
+    deployer = new deployScript();
+    e_auction = deployer.run(); 
 
     console.log("E_Auction deployed");
 
@@ -173,6 +175,7 @@ modifier NativeEtherAuctionCreated  {
         
 
         assertEq(ERC20_STARTING_BALANCE,ERC20(usdt).balanceOf(USER1));
+        console.log(ERC20(usdt).balanceOf(USER1));
     }
 
 
