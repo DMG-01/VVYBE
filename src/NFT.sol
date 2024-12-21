@@ -87,5 +87,12 @@ function returnNftOwner() public view returns(address) {
     return owner;
 }
 
+function checkIsDeployer(address addressToCheck) public view returns(bool isOwner) {
+    if (addressToCheck == owner) {
+        return isOwner;
+    }else  {
+        return isOwner;
+    }
+}
 
  }
