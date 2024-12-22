@@ -35,6 +35,9 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
     if(msg.sender != owner) {
         revert onlyOwnerCanCallThisFunction();
     }
+    if(tokenProperties.length != tokenValues.length) {
+        revert tokenPropertiesIsNotEqualToTokenLength(tokenProperties.length, tokenValues.length);
+    }
     string memory _tokenURI = generateUri(tokenProperties,tokenValues);
     tokenIdToURI[nftTokenId] = _tokenURI;
     _mint(addressToMintTo, nftTokenId);
@@ -89,9 +92,9 @@ function returnNftOwner() public view returns(address) {
 
 function checkIsDeployer(address addressToCheck) public view returns(bool isOwner) {
     if (addressToCheck == owner) {
-        return isOwner;
+        return true;
     }else  {
-        return isOwner;
+        return false;
     }
 }
 
