@@ -6,23 +6,27 @@ import {NFT} from "src/NFT.sol";
 contract NFTDeployer  {
 
 /************EVENTS */
-event newNftHasBeenCreated(address tokenAddress, address tokenOwner, string name, string symbol,uint256 timeOfDeployment);
+event newNftCollectionHasBeenCreated(address tokenAddress, address tokenOwner, string name, string symbol,uint256 timeOfDeployment);
+event newNftHasBeenMinted(address tokenAddress, address callerAddress, uint256 tokenId, address addressToMintTo);
 
 
-function createNft(string memory nftName, string memory nftSymbol ) public returns (NFT) {
+function createNftCollection(string memory nftName, string memory nftSymbol ) public returns (NFT) {
 
 NFT newNft = new NFT(nftName,nftSymbol,msg.sender);
-emit newNftHasBeenCreated(address(newNft),msg.sender,nftName,nftSymbol,block.timestamp);
+emit newNftCollectionHasBeenCreated(address(newNft),msg.sender,nftName,nftSymbol,block.timestamp);
 return newNft;
 
 }
 
-function mintNewNft(address nftAddress,uint256 nftTokenId, string[] memory nftProperties, string[] memory nftPropertiesValue, address addressToMintTo) public  {
+function mintNewNft(address nftAddress,uint256 nftTokenId, string[] memory nftProperties, string[] memory nftPropertiesValue, address addressToMintTo) public returns(uint256,address)  {
   NFT(nftAddress).mintNewNft(addressToMintTo,nftProperties,nftPropertiesValue,nftTokenId);
-   
+   emit newNftHasBeenMinted(nftAddress,msg.sender,nftTokenId,addressToMintTo);
+   return(nftTokenId,addressToMintTo);
 }
 
-function mint() public {
+
+
+function mintNftInCollection() public {
 
 }
 
