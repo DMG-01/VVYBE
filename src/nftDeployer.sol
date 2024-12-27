@@ -30,6 +30,15 @@ function mint() public {
 function burnNft() public {}
 
 
+function sellNft() public {}
 
+
+function buyNft() public {}
+
+
+function changeNftPrice() public {}
+
+
+function changeNftCollectionPrice() public {}
 
 }
