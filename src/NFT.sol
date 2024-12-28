@@ -98,7 +98,7 @@ function tokenURI(uint256 _tokenId) public view override returns(string memory )
 function returnNftOwner() public view returns(address) {
     return owner;
 }
-
+// CHECK THE FUNCTIOn and its use
 function checkIsDeployer(address addressToCheck) public view returns(bool isOwner) {
     if (addressToCheck == owner) {
         return true;
