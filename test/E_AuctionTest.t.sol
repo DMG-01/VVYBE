@@ -70,6 +70,24 @@ modifier NativeEtherAuctionCreated  {
     _;
 }
 
+     function testClaimAuctionWorks() public ERC20AuctionCreated   {
+        vm.startPrank(USER2);
+        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
+        
+        e_auction.makeABidWithERC20Token(0, ERC20_STARTING_BALANCE);
+        vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 2);
+      
+        //vm.startPrank(address(e_auction));
+        
+       // vm.stopPrank();
+        //vm.startPrank(USER2);
+        e_auction.claimAuction(0);
+        
+
+        assertEq(ERC20_STARTING_BALANCE,ERC20(usdt).balanceOf(USER1));
+        console.log(ERC20(usdt).balanceOf(USER1));
+    }
+
 
     function testCreateAuctionFailsWithErc20Token() public {
         vm.startPrank(USER1);
@@ -160,24 +178,7 @@ modifier NativeEtherAuctionCreated  {
     }
 
 
-    function testClaimAuctionWorks() public ERC20AuctionCreated   {
-        vm.startPrank(USER2);
-        usdt.approve(address(e_auction), ERC20_STARTING_BALANCE);
-        
-        e_auction.makeABidWithERC20Token(0, ERC20_STARTING_BALANCE);
-        vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 2);
-      
-        vm.startPrank(address(e_auction));
-        
-        vm.stopPrank();
-        vm.startPrank(USER2);
-        e_auction.claimAuction(0);
-        
-
-        assertEq(ERC20_STARTING_BALANCE,ERC20(usdt).balanceOf(USER1));
-        console.log(ERC20(usdt).balanceOf(USER1));
-    }
-
+   
 
     function testWhenNoOneBuysTheToken() public ERC20AuctionCreated{
         vm.warp(block.timestamp + AUCTION_TIME_PERIOD + 2);
