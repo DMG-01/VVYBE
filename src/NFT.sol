@@ -49,9 +49,6 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
 
 
 function burnNft(uint256 tokenId) public  {
-    if(msg.sender != owner) {
-        revert onlyOwnerCanCallThisFunction();
-    }
 
     _burn(tokenId);
     emit tokenHasBeenBurned(msg.sender,tokenId,block.timestamp);

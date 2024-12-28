@@ -26,23 +26,8 @@ function mintNewNft(address nftAddress,uint256 nftTokenId, string[] memory nftPr
 
 
 
-function mintNftInCollection() public {
-
-}
-
-
 function burnNft() public {}
 
 
-function sellNft() public {}
-
-
-function buyNft() public {}
-
-
-function changeNftPrice() public {}
-
-
-function changeNftCollectionPrice() public {}
 
 }
