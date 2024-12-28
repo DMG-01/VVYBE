@@ -184,7 +184,7 @@ function claimAuction(uint256 _auctionId) public returns (TokenAuctionDetails me
     address tokenSeller = auctionToClaim.tokenSeller;
     uint256 auctionAmount = auctionToClaim.currentHighestBid;
 
-    uint256 auctionAmountAfterFee =  ((uint256(auctionFeePercentage)*auctionAmount)/100);
+
     
     if (msg.sender != auctionWinner && msg.sender != DEPLOYER && msg.sender != tokenSeller) {
         revert youCannotCallThisFunction();
@@ -200,9 +200,13 @@ function claimAuction(uint256 _auctionId) public returns (TokenAuctionDetails me
         return auctionToClaim;
     }
 
+    uint256 auctionAmountAfterFee =  ((uint256(auctionFeePercentage)*auctionAmount)/100);
     ERC20(auctionToClaim.methodOfPayment).approve(tokenSeller, type(uint256).max);
-    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this), tokenSeller, auctionAmountAfterFee);
-
+    if(auctionFeePercentage != 0) {
+          ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this), tokenSeller, auctionAmountAfterFee);
+    }else {
+    ERC20(auctionToClaim.methodOfPayment).transferFrom(address(this), tokenSeller, auctionAmount);
+    }
     emit auctionClaimed(msg.sender, block.timestamp, _auctionId, auctionToClaim);
     return auctionToClaim;
 }
