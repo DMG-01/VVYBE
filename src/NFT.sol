@@ -11,6 +11,7 @@
 
     /**********EVENTS ****/
     event newTokenMinted(address mintedTo,uint256 tokenId,string tokenUri, uint256 timeOfMint);
+    event tokenHasBeenBurned(address burnerAddress, uint256 tokenId, uint256 timeOfBurn);
 
     /***********MAPPINGS */
     mapping(uint256 => string )tokenIdToURI;
@@ -30,7 +31,7 @@ constructor(string memory _name, string memory _symbol, address _owner) ERC721(_
 
 
 
-function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) external  returns(uint256, string memory){
+function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) public  returns(uint256, string memory){
 
     if(msg.sender != owner) {
         revert onlyOwnerCanCallThisFunction();
@@ -44,6 +45,17 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
 
     emit newTokenMinted(addressToMintTo,nftTokenId,_tokenURI,block.timestamp);
     return(nftTokenId,_tokenURI);
+}
+
+
+function burnNft(uint256 tokenId) public  {
+    if(msg.sender != owner) {
+        revert onlyOwnerCanCallThisFunction();
+    }
+
+    _burn(tokenId);
+    emit tokenHasBeenBurned(msg.sender,tokenId,block.timestamp);
+
 }
 
 
@@ -79,7 +91,7 @@ function generateUri(
 }
 
 
-/***************GETTER FUNCTION */
+/***************GETTER FUNCTION *****/
 
 function tokenURI(uint256 _tokenId) public view override returns(string memory ) {
     return tokenIdToURI[_tokenId];
