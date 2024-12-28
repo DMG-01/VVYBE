@@ -18,15 +18,10 @@ return newNft;
 
 }
 
-function mintNewNft(address nftAddress,uint256 nftTokenId, string[] memory nftProperties, string[] memory nftPropertiesValue, address addressToMintTo) public returns(uint256,address)  {
-  NFT(nftAddress).mintNewNft(addressToMintTo,nftProperties,nftPropertiesValue,nftTokenId);
-   emit newNftHasBeenMinted(nftAddress,msg.sender,nftTokenId,addressToMintTo);
-   return(nftTokenId,addressToMintTo);
-}
 
 
 
-function burnNft() public {}
+
 
 
 
