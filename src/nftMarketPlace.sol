@@ -49,7 +49,9 @@ contract nftMarketPlace {
     event nftHasBeenBought(address buyerAddress, nftDetails detailsOfNft, uint256 timeOfSale);
     event nftPriceHasBeenChanged(uint256 timeOfChange, nftDetails _nftDetails);
     event nftHasBeenRemovedFomSale(uint256 timeOfUnlisiting, nftDetails detailsOfnlistedNft);
-    
+    event contractAddressPercentageFeeHasBeenChanged(address callerAddress, uint256 newPercentageFee);
+    event newAdminHasBeenAdded(address callerAddress, address newAdminAddress);
+    event adminHasBeenRemoved(address callerAddress, address adminAddressToRemove);
     
     function sellNft(address tokenAddress,uint256 tokenId,uint256 amount,address methodOfPayment) public returns(uint256, nftDetails memory) {
         require(address(this) == ERC721(tokenAddress).getApproved(tokenId),"APPROVE THIS CONTRACT ADDRESS TO SPEND YOUR TOKEN");
@@ -112,10 +114,12 @@ function removeNftFromSale(uint256 _saleId) public {
 
 function changePercentageFee(uint256 newPercentageFee) public onlyAdmin {
 percentageFee = newPercentageFee;
+emit contractAddressPercentageFeeHasBeenChanged(msg.sender,newPercentageFee);
 
 }
 function addAdmin(address adminAddressToAdd) public onlyAdmin {
     isAdmin[adminAddressToAdd] = true;
+    emit newAdminHasBeenAdded(msg.sender, adminAddressToAdd);
 }
 
 function removeAdmin( address adminAddressToRemove) public onlyAdmin {
@@ -123,6 +127,7 @@ function removeAdmin( address adminAddressToRemove) public onlyAdmin {
         revert youCannotRemoveInitialDeployer();
     }
     isAdmin[adminAddressToRemove] = false;
+    emit adminHasBeenRemoved(msg.sender, adminAddressToRemove);
 }
 
 }
