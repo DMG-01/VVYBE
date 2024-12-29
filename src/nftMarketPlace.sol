@@ -108,7 +108,7 @@ function removeNftFromSale(uint256 _saleId) public {
 }
 
 
-function changePercentageFee() public {
+function changePercentageFee() public onlyAdmin {
 
 }
 
