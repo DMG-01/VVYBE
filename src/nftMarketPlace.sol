@@ -9,7 +9,20 @@ contract nftMarketPlace {
 
     uint256 saleId = 0;
     uint256 percentageFee = 1;
+    address DEPLOYER;
+  
     
+    constructor() {
+         DEPLOYER = msg.sender;
+         isAdmin[msg.sender] = true;
+    }
+
+    modifier onlyAdmin {
+        if(false == isAdmin[msg.sender]) {
+            revert onlyAdminCanCallThisFunction();
+        }
+        _;
+    }
 
     struct nftDetails {
         address tokenAddress;
@@ -21,11 +34,13 @@ contract nftMarketPlace {
 
     mapping(uint256 => nftDetails) idToNftDetails; 
     mapping(uint256 => bool) isSold;
+    mapping(address => bool) isAdmin;
 
     /*****************ERRORS ****/
     error nftHasBeenSold();
     error onlyNftOwnerCanCallThisFunction();
     error tokenHasBeenUnlistedFromSale();
+    error onlyAdminCanCallThisFunction();
 
 
     /*********************EVENTS ***/
@@ -80,7 +95,7 @@ function changeNftPrice(uint256 _saleId, uint256 newAmount, address addressOfMet
 }
 
 
-// return the nft back
+
 function removeNftFromSale(uint256 _saleId) public {
   if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
     revert onlyNftOwnerCanCallThisFunction();
