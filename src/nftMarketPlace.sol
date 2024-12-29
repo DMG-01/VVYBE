@@ -24,6 +24,7 @@ contract nftMarketPlace {
 
     /*****************ERRORS ****/
     error nftHasBeenSold();
+    error onlyNftOwnerCanCallThisFunction();
 
 
     /*********************EVENTS ***/
@@ -60,7 +61,16 @@ contract nftMarketPlace {
 }
 
 
-function changeNftPrice() public {}
+function changeNftPrice(uint256 _saleId, uint256 newAmount, address addressOfMethodOfPayment) public returns(nftDetails memory) {
+  if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
+    revert onlyNftOwnerCanCallThisFunction();
+  }
+ address _tokenAddress = idToNftDetails[_saleId].tokenAddress;
+ uint256 _tokenId = idToNftDetails[_saleId].tokenId;
+    
+  idToNftDetails[_saleId] = nftDetails(_tokenAddress,_tokenId,newAmount,addressOfMethodOfPayment,msg.sender);
+  return(idToNftDetails[_saleId]);
+}
 
 
 function changeNftCollectionPrice() public {}
