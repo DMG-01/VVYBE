@@ -25,11 +25,14 @@ contract nftMarketPlace {
     /*****************ERRORS ****/
     error nftHasBeenSold();
     error onlyNftOwnerCanCallThisFunction();
+    error tokenHasBeenUnlistedFromSale();
 
 
     /*********************EVENTS ***/
     event nftHasBeenListedForSale(address tokenAddress, uint256 tokenId, uint256 amount, address methodOfPayment, address seller);
     event nftHasBeenBought(address buyerAddress, nftDetails detailsOfNft, uint256 timeOfSale);
+    event nftPriceHasBeenChanged(uint256 timeOfChange, nftDetails _nftDetails);
+    event nftHasBeenRemovedFomSale(uint256 timeOfUnlisiting, nftDetails detailsOfnlistedNft);
     
     function sellNft(address tokenAddress,uint256 tokenId,uint256 amount,address methodOfPayment) public returns(uint256, nftDetails memory) {
         require(address(this) == ERC721(tokenAddress).getApproved(tokenId),"APPROVE THIS CONTRACT ADDRESS TO SPEND YOUR TOKEN");
@@ -47,6 +50,10 @@ contract nftMarketPlace {
 
     if(isSold[_saleId] == true ) {
         revert nftHasBeenSold();
+    }
+
+    if(idToNftDetails[_saleId].tokenAddress ==address(0)) {
+        revert tokenHasBeenUnlistedFromSale();
     }
     require( ERC20(idToNftDetails[_saleId].methodOfPayment).allowance(msg.sender,address(this)) >=  idToNftDetails[_saleId].amount,"INCREASE ERC20 ALLOWANCE OF THIS ADDRESS");
 
@@ -69,13 +76,19 @@ function changeNftPrice(uint256 _saleId, uint256 newAmount, address addressOfMet
  uint256 _tokenId = idToNftDetails[_saleId].tokenId;
     
   idToNftDetails[_saleId] = nftDetails(_tokenAddress,_tokenId,newAmount,addressOfMethodOfPayment,msg.sender);
-  return(idToNftDetails[_saleId]);
+  emit nftPriceHasBeenChanged(block.timestamp,idToNftDetails[_saleId]);  return(idToNftDetails[_saleId]);
 }
 
 
-function changeNftCollectionPrice() public {}
-
-function removeNftFromSale() public {
+// return the nft back
+function removeNftFromSale(uint256 _saleId) public {
+  if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
+    revert onlyNftOwnerCanCallThisFunction();
+  }
+    nftDetails memory _nftDetails = idToNftDetails[_saleId];
+   idToNftDetails[_saleId] = nftDetails(address(0),0,0,address(0),address(0));
+   ERC721(_nftDetails.tokenAddress).safeTransferFrom(address(this),msg.sender,_nftDetails.tokenId);
+   emit nftHasBeenRemovedFomSale(block.timestamp,_nftDetails);
 
 }
 
