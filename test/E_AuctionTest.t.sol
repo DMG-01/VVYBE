@@ -33,7 +33,7 @@ contract E_AuctionTest is Test {
     console.log("Starting setUp...");
     //e_auction = new E_Auction();
     deployer = new deployScript();
-    (e_auction,,) = deployer.run(); 
+    (e_auction,,,) = deployer.run(); 
 
     console.log("E_Auction deployed");
 

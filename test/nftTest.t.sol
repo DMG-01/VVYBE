@@ -23,7 +23,7 @@ string[] tokenValues;
 function setUp() public {
 
 deployer = new deployScript();
-(,nft,)= deployer.run();
+(,nft,,)= deployer.run();
 nftDeployer = nft.returnNftOwner(); 
 
 tokenProperties.push("name");

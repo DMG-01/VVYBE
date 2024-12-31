@@ -5,7 +5,7 @@ pragma solidity 0.8.13;
 import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
-contract nftMarketPlace {
+contract NftMarketPlace {
 
     uint256 saleId = 0;
     uint256 percentageFee = 1;
@@ -128,6 +128,15 @@ function removeAdmin( address adminAddressToRemove) public onlyAdmin {
     }
     isAdmin[adminAddressToRemove] = false;
     emit adminHasBeenRemoved(msg.sender, adminAddressToRemove);
+}
+
+function returnDeployer() public view returns(address) {
+    return DEPLOYER;
+}
+
+
+function checkIsAddressAdmin(address addressToCheck) public view returns(bool) {
+    return(isAdmin[addressToCheck]);
 }
 
 }
