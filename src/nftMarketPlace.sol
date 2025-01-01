@@ -93,6 +93,7 @@ contract NftMarketPlace is IERC721Receiver {
     uint256 percentageToSend = 100 - percentageFee;
     uint256 amountAfterFee = ((percentageToSend*idToNftDetails[_saleId].amount)/100);
     ERC20(idToNftDetails[_saleId].methodOfPayment).transferFrom(msg.sender,idToNftDetails[_saleId].sellerAddress,amountAfterFee);
+    ERC20(idToNftDetails[_saleId].methodOfPayment).transferFrom(msg.sender,address(this),idToNftDetails[_saleId].amount - amountAfterFee);
     ERC721(idToNftDetails[_saleId].tokenAddress).transferFrom(address(this),msg.sender,idToNftDetails[_saleId].tokenId);
 
     emit nftHasBeenBought(msg.sender,idToNftDetails[_saleId],block.timestamp);
@@ -150,6 +151,10 @@ function returnDeployer() public view returns(address) {
 
 function checkIsAddressAdmin(address addressToCheck) public view returns(bool) {
     return(isAdmin[addressToCheck]);
+}
+
+function checkIfTokenWithSaleIdIsStillListed(uint256 saleIdToCheck) public view returns(bool){
+  return isSold[saleIdToCheck];
 }
 
 }

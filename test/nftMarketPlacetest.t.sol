@@ -38,6 +38,10 @@ contract nftMarketPlaceTest is Test {
          ajdNft.mint(USER1,TOKEN_ID);
          vm.startPrank(USER1);
          ERC721(ajdNft).approve(address(nftMarketPlace),TOKEN_ID);
+         vm.stopPrank();
+         vm.startPrank(USER2);
+         ERC20(usdt).approve(address(nftMarketPlace),TOKEN_PRICE);
+         vm.stopPrank();
          console.log(ERC20(usdt).balanceOf(USER2));
     }
 
@@ -50,6 +54,22 @@ contract nftMarketPlaceTest is Test {
         vm.startPrank(USER1);
         nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
         assertEq(ERC721(ajdNft).ownerOf(TOKEN_ID),address(nftMarketPlace));
+        assertEq(false,nftMarketPlace.checkIfTokenWithSaleIdIsStillListed(0));
     }
+
+    function testBuyNftWorks() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        vm.stopPrank();
+        vm.startPrank(USER2);
+        nftMarketPlace.buyNft(0);
+        assertEq(true,nftMarketPlace.checkIfTokenWithSaleIdIsStillListed(0));
+        assertEq(ERC20(usdt).balanceOf(USER2),10e18 - TOKEN_PRICE);
+        assertEq(ERC721(ajdNft).ownerOf(TOKEN_ID),USER2);
+        console.log(ERC20(usdt).balanceOf(address(nftMarketPlace)));
+    }
+
+
+    
     
 }
