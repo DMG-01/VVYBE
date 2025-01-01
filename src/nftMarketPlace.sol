@@ -162,5 +162,9 @@ function checkIfTokenWithSaleIdIsStillListed(uint256 saleIdToCheck) public view 
   return isSold[saleIdToCheck];
 }
 
+function returnSaleIdDetails(uint256 _saleIdToCheck) public view returns(nftDetails memory) {
+    return idToNftDetails[_saleIdToCheck];
+}
+
 }
 

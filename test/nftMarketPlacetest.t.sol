@@ -28,8 +28,7 @@ contract nftMarketPlaceTest is Test {
     ERC20Mock usdt;
     ERC721Mock ajdNft;
 
-
-    
+  
     
     function setUp() public {
         deployer = new deployScript();
@@ -90,6 +89,14 @@ contract nftMarketPlaceTest is Test {
         vm.startPrank(USER1);
         vm.expectRevert(NftMarketPlace.youCannotChangeThePriceOfNftSinceItHasBeenSold.selector);
         nftMarketPlace.changeNftPrice(0,NEW_TOKEN_PRICE,address(usdt));
+    }
+
+    function testChangeNftPriceWorksWell() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        nftMarketPlace.changeNftPrice(0,NEW_TOKEN_PRICE,address(usdt));
+       nftMarketPlace.nftDetails memory returnedStruct = nftMarketPlace.returnSaleIdDetails(0);
+
 
     }
     
