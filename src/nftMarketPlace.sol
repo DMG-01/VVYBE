@@ -43,6 +43,7 @@ contract NftMarketPlace is IERC721Receiver {
     error tokenHasBeenUnlistedFromSale();
     error onlyAdminCanCallThisFunction();
     error youCannotRemoveInitialDeployer();
+    error youCannotChangeThePriceOfNftSinceItHasBeenSold();
 
 
     /*********************EVENTS ***/
@@ -104,6 +105,10 @@ contract NftMarketPlace is IERC721Receiver {
 function changeNftPrice(uint256 _saleId, uint256 newAmount, address addressOfMethodOfPayment) public returns(nftDetails memory) {
   if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
     revert onlyNftOwnerCanCallThisFunction();
+  }
+
+  if(isSold[_saleId]) {
+    revert youCannotChangeThePriceOfNftSinceItHasBeenSold();
   }
  address _tokenAddress = idToNftDetails[_saleId].tokenAddress;
  uint256 _tokenId = idToNftDetails[_saleId].tokenId;

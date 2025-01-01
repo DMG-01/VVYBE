@@ -24,6 +24,7 @@ contract nftMarketPlaceTest is Test {
     address  USER2 = makeAddr("USER2");
     uint256 TOKEN_ID = 5;
     uint256 TOKEN_PRICE = 6 ether;
+    uint256 NEW_TOKEN_PRICE = 5 ether;
     ERC20Mock usdt;
     ERC721Mock ajdNft;
 
@@ -70,6 +71,26 @@ contract nftMarketPlaceTest is Test {
     }
 
 
-    
+    function testChangeNftPriceRevertsWithInvalidCaller() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        vm.stopPrank();
+        vm.startPrank(USER2);
+        vm.expectRevert(NftMarketPlace.onlyNftOwnerCanCallThisFunction.selector);
+        nftMarketPlace.changeNftPrice(0,NEW_TOKEN_PRICE,address(usdt));
+    }
+
+    function testchangeNftPriceRevertsWhenNftHasBeenSold() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        vm.stopPrank();
+        vm.startPrank(USER2);
+        nftMarketPlace.buyNft(0);
+        vm.stopPrank();
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.youCannotChangeThePriceOfNftSinceItHasBeenSold.selector);
+        nftMarketPlace.changeNftPrice(0,NEW_TOKEN_PRICE,address(usdt));
+
+    }
     
 }
