@@ -4,8 +4,9 @@ pragma solidity 0.8.13;
 
 import {ERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {IERC721Receiver} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 
-contract NftMarketPlace {
+contract NftMarketPlace is IERC721Receiver {
 
     uint256 saleId = 0;
     uint256 percentageFee = 1;
@@ -52,6 +53,18 @@ contract NftMarketPlace {
     event contractAddressPercentageFeeHasBeenChanged(address callerAddress, uint256 newPercentageFee);
     event newAdminHasBeenAdded(address callerAddress, address newAdminAddress);
     event adminHasBeenRemoved(address callerAddress, address adminAddressToRemove);
+
+
+     function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes memory data
+    ) external override pure  returns (bytes4) {
+        // Optionally handle the received token (e.g., store info)
+        return this.onERC721Received.selector; // Required confirmation
+    }
+
     
     function sellNft(address tokenAddress,uint256 tokenId,uint256 amount,address methodOfPayment) public returns(uint256, nftDetails memory) {
         require(address(this) == ERC721(tokenAddress).getApproved(tokenId),"APPROVE THIS CONTRACT ADDRESS TO SPEND YOUR TOKEN");

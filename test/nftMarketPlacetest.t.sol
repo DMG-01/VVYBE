@@ -28,7 +28,8 @@ contract nftMarketPlaceTest is Test {
     ERC721Mock ajdNft;
 
 
- 
+    
+    
     function setUp() public {
         deployer = new deployScript();
         (,,,nftMarketPlace) = deployer.run();
