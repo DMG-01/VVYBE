@@ -25,6 +25,7 @@ contract nftMarketPlaceTest is Test {
     uint256 TOKEN_ID = 5;
     uint256 TOKEN_PRICE = 6 ether;
     uint256 NEW_TOKEN_PRICE = 5 ether;
+    uint256 NEW_PERCENTAGE_FEE = 2;
     ERC20Mock usdt;
     ERC721Mock ajdNft;
 
@@ -97,5 +98,85 @@ contract nftMarketPlaceTest is Test {
         nftMarketPlace.changeNftPrice(0,NEW_TOKEN_PRICE,address(usdt));
        
     }
-    
+
+    function testRemoveNftFromSaleRevertsWithInvalidCaller() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        vm.stopPrank();
+        vm.startPrank(USER2);
+        vm.expectRevert(NftMarketPlace.onlyNftOwnerCanCallThisFunction.selector);
+        nftMarketPlace.removeNftFromSale(0);
+    }
+
+    function testRemoveNftFromSaleRevertsWhenNftHasBeenSold() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        vm.stopPrank();
+        vm.startPrank(USER2);
+        nftMarketPlace.buyNft(0);
+        vm.stopPrank();
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.youCannotCallThisFunctionSinceNftHasBeenSold.selector);
+        nftMarketPlace.removeNftFromSale(0);
+    }
+
+    function testRemoveNftFromSaleWorks() public {
+        vm.startPrank(USER1);
+        nftMarketPlace.sellNft(address(ajdNft),TOKEN_ID,TOKEN_PRICE,address(usdt));
+        nftMarketPlace.removeNftFromSale(0);
+        assertEq(ERC721(ajdNft).ownerOf(TOKEN_ID),USER1);
+    }
+
+    function testChangePercentageFeeRevertsWithInvalidCaller() public {
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.onlyAdminCanCallThisFunction.selector);
+        nftMarketPlace.changePercentageFee(NEW_PERCENTAGE_FEE);
+    }
+
+    function testchangePercentageFeeWorks() public {
+        address deloyerAddress =  nftMarketPlace.returnDeployer();
+        vm.startPrank(deloyerAddress);
+         nftMarketPlace.changePercentageFee(NEW_PERCENTAGE_FEE);
+         assertEq(NEW_PERCENTAGE_FEE,nftMarketPlace.returnPercentageFee());
+
+
+    }
+
+    function testAddAdminRevertsWhenCalledByNonAdmin() public {
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.onlyAdminCanCallThisFunction.selector);
+        nftMarketPlace.addAdmin(USER2);
+    }
+
+    function testAddAdminWorks() public {
+        address deloyerAddress =  nftMarketPlace.returnDeployer();
+        vm.startPrank(deloyerAddress);
+        nftMarketPlace.addAdmin(USER1);
+        assertEq(true,nftMarketPlace.checkIsAddressAdmin(USER1));
+    }
+
+    function testRemoveAdminRevertsWhenCalledByNonAdmin() public {
+         address deloyerAddress =  nftMarketPlace.returnDeployer();
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.onlyAdminCanCallThisFunction.selector);
+        nftMarketPlace.removeAdmin(deloyerAddress);
+
+    }
+    function testRemoveInitialDeployerReverts() public  {
+        address deployerAddress =  nftMarketPlace.returnDeployer();
+        vm.startPrank(deployerAddress);
+        nftMarketPlace.addAdmin(USER1);
+        vm.startPrank(USER1);
+        vm.expectRevert(NftMarketPlace.youCannotRemoveInitialDeployer.selector);
+        nftMarketPlace.removeAdmin(deployerAddress);
+    }
+
+    function testRemoveAdminWorks() public {
+        address deployerAddress =  nftMarketPlace.returnDeployer();
+        vm.startPrank(deployerAddress);
+        nftMarketPlace.addAdmin(USER1);
+        assertEq(true,nftMarketPlace.checkIsAddressAdmin(USER1));
+        nftMarketPlace.removeAdmin(USER1);
+        assertEq(false,nftMarketPlace.checkIsAddressAdmin(USER1));
+    }
 }

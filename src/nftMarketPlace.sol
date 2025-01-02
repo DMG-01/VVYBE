@@ -44,6 +44,7 @@ contract NftMarketPlace is IERC721Receiver {
     error onlyAdminCanCallThisFunction();
     error youCannotRemoveInitialDeployer();
     error youCannotChangeThePriceOfNftSinceItHasBeenSold();
+    error youCannotCallThisFunctionSinceNftHasBeenSold();
 
 
     /*********************EVENTS ***/
@@ -123,6 +124,10 @@ function removeNftFromSale(uint256 _saleId) public {
   if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
     revert onlyNftOwnerCanCallThisFunction();
   }
+
+  if(isSold[_saleId]) {
+    revert youCannotCallThisFunctionSinceNftHasBeenSold();
+  }
     nftDetails memory _nftDetails = idToNftDetails[_saleId];
    idToNftDetails[_saleId] = nftDetails(address(0),0,0,address(0),address(0));
    ERC721(_nftDetails.tokenAddress).safeTransferFrom(address(this),msg.sender,_nftDetails.tokenId);
@@ -152,7 +157,7 @@ function removeAdmin( address adminAddressToRemove) public onlyAdmin {
 function returnDeployer() public view returns(address) {
     return DEPLOYER;
 }
-
+    
 
 function checkIsAddressAdmin(address addressToCheck) public view returns(bool) {
     return(isAdmin[addressToCheck]);
@@ -164,6 +169,10 @@ function checkIfTokenWithSaleIdIsStillListed(uint256 saleIdToCheck) public view 
 
 function returnSaleIdDetails(uint256 _saleIdToCheck) public view returns(nftDetails memory) {
     return idToNftDetails[_saleIdToCheck];
+}
+
+function returnPercentageFee() public view returns(uint256) {
+    return percentageFee;
 }
 
 }
