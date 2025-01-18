@@ -20,7 +20,7 @@ contract sourceChainNftBridge  {
         if(!isErc721) {
             revert notErc721Token(nftToken);
         }
-        
+        // add a logic for the token URI
         // Construct the message to be sent to the destination chain.
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
             receiver: receiver,
