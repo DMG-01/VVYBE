@@ -1,11 +1,13 @@
 //SPDX-license-Identifier 
 pragma solidity pragma solidity 0.8.13;
 import {IRouterClient} from "lib/chainlink-develop/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import {BurnerAddress} from "src/Bridge/burnerAddress.sol";
 
 
 contract sourceChainNftBridge  {
 
     IRouterClient public routerClient;
+    BurnerAddress public burnerAddress;
 
     /*******ERRORS */
     error notErc721Token(address tokenAddress);
@@ -19,6 +21,14 @@ contract sourceChainNftBridge  {
 
         if(!isErc721) {
             revert notErc721Token(nftToken);
+        }
+
+        try {
+         bool sent = IERC721(nftToken).transferFrom(msg.sender, address(this), tokenId);
+         IERC721(nftToken).approve(address(burnerAddress), tokenId);
+         IERC721(nftToken).transferFrom(address(this),address(burnerAddress),tokenId);
+        } catch {
+            revert;
         }
         // add a logic for the token URI
         // Construct the message to be sent to the destination chain.
