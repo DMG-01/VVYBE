@@ -20,7 +20,7 @@ contract sourceChainNftBridge  {
     constructor(IRouterClient _routerClient) {
         routerClient = _routerClient;
     }
-    function sendNftToDestChain(uint64 destChainSelector,address receiverAddress,  bytes calldata receiver, address nftToken, uint256 tokenId) external {
+    function sendNftToDestChain(uint64 destChainSelector,  bytes calldata receiver, address nftToken, uint256 tokenId) external {
         
         bool isErc721 = isERC721(nftToken);
 
@@ -32,23 +32,19 @@ contract sourceChainNftBridge  {
         
 
         
-         IERC721(nftToken).transferFrom(msg.sender, address(this), tokenId);
-         IERC721(nftToken).approve(address(burnerAddress), tokenId);
-         IERC721(nftToken).transferFrom(address(this),address(burnerAddress),tokenId);
-       
-       uint64 sourceChainId = returnChainId();
-       uint64 destinationChainId = getContractChainId(address(receiverAddress)); 
-        
-         string memory jsonAddTokenUri = string(
-    abi.encodePacked(
-        "{",
-        '"sourceChainId": "', Strings.toString(sourceChainId), '", ',
-        '"destinationChainId": "', Strings.toString(destinationChainId), '"',
-        "}"
-    )
-         );
+         IERC721(nftToken).transferFrom(msg.sender, address(burnerAddress), tokenId);
 
-    string memory newTokenUri = string(abi.encodePacked(tokenUri,jsonAddTokenUri));
+         string memory jsonAddTokenUri = string(
+            abi.encodePacked(
+                '{"initialAddress":"',
+                Strings.toHexString(uint256(uint160(nftToken)), 20),
+                '","sourceChainId":"',
+                Strings.toString(returnChainId()),
+                '"}'
+            )
+        );
+
+ string memory newTokenUri = string(abi.encodePacked(tokenUri, jsonAddTokenUri));
     bytes memory data = bytes(newTokenUri);
 
 
@@ -60,7 +56,7 @@ contract sourceChainNftBridge  {
             data: data,
             tokenAmounts: new Client.EVMTokenAmount[](1),
             feeToken: address(0),
-            extraArgs: abi.encodeWithSelector(Client.EVM_EXTRA_ARGS_V1_TAG, Client.EVMExtraArgsV1({gasLimit: 200000}))
+            extraArgs: ""
         });
 
         // Set the token amount to be transferred.
@@ -77,22 +73,9 @@ contract sourceChainNftBridge  {
         return IERC165(token).supportsInterface(0x80ac58cd);
     }
 
-    function returnChainId()  public view returns(uint64) {
-        uint64 chainId;
-
-        assembly {
-            chainId := chainid()
-        }
-
-        return chainId;
+    function returnChainId()  public view returns(uint64) {  
+        return uint64(block.chainid);
     }
 
-    function getContractChainId(address contractAddress) public view returns(uint64){
-        uint64 contractChainId;
 
-        assembly {
-            contractChainId := extcodehash(contractAddress)
-        }
-        return contractChainId;
-    }
 }
