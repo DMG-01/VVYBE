@@ -5,7 +5,11 @@ import {IERC721Receiver} from "lib/openzeppelin-contracts/contracts/token/ERC721
 
 contract BurnerAddress is IERC721Receiver {
     
+    constructor() {
+        ADMIN = msg.sender;
+    }
      
+     address ADMIN;
 
      function onERC721Received(
         address operator,

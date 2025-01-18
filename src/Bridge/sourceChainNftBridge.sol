@@ -1,8 +1,13 @@
-//SPDX-license-Identifier 
-pragma solidity pragma solidity 0.8.13;
+//SPDX-License-Identifier: MIT
+pragma solidity  0.8.13;
+
 import {IRouterClient} from "lib/chainlink-develop/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {BurnerAddress} from "src/Bridge/burnerAddress.sol";
-
+import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+import {Client} from "lib/chainlink-develop/contracts/src/v0.8/ccip/libraries/Client.sol";
+import {IERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import {IERC721Metadata} from "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import {IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 
 contract sourceChainNftBridge  {
 
@@ -15,23 +20,41 @@ contract sourceChainNftBridge  {
     constructor(IRouterClient _routerClient) {
         routerClient = _routerClient;
     }
-    function sendNftToDestChain(uint64 destChainSelector, bytes calldata receiver, bytes calldata data, address nftToken, uint256 tokenId) external {
+    function sendNftToDestChain(uint64 destChainSelector,address receiverAddress,  bytes calldata receiver, address nftToken, uint256 tokenId) external {
         
-        bool isErc721 = isErc721(nftToken);
+        bool isErc721 = isERC721(nftToken);
 
         if(!isErc721) {
             revert notErc721Token(nftToken);
         }
 
-        try {
-         bool sent = IERC721(nftToken).transferFrom(msg.sender, address(this), tokenId);
+        string memory tokenUri = IERC721Metadata(nftToken).tokenURI(tokenId);
+        
+
+        
+         IERC721(nftToken).transferFrom(msg.sender, address(this), tokenId);
          IERC721(nftToken).approve(address(burnerAddress), tokenId);
          IERC721(nftToken).transferFrom(address(this),address(burnerAddress),tokenId);
-        } catch {
-            revert;
-        }
-        // add a logic for the token URI
-        // Construct the message to be sent to the destination chain.
+       
+       uint64 sourceChainId = returnChainId();
+       uint64 destinationChainId = getContractChainId(address(receiverAddress)); 
+        
+         string memory jsonAddTokenUri = string(
+    abi.encodePacked(
+        "{",
+        '"sourceChainId": "', Strings.toString(sourceChainId), '", ',
+        '"destinationChainId": "', Strings.toString(destinationChainId), '"',
+        "}"
+    )
+         );
+
+    string memory newTokenUri = string(abi.encodePacked(tokenUri,jsonAddTokenUri));
+    bytes memory data = bytes(newTokenUri);
+
+
+
+        
+        
         Client.EVM2AnyMessage memory message = Client.EVM2AnyMessage({
             receiver: receiver,
             data: data,
@@ -50,7 +73,26 @@ contract sourceChainNftBridge  {
         routerClient.ccipSend(destChainSelector, message);
     }
 
-    function isERC721(address token) internal pure returns (bool) {
-        return token.supportsInterface(0x80ac58cd);
+    function isERC721(address token) internal view returns (bool) {
+        return IERC165(token).supportsInterface(0x80ac58cd);
+    }
+
+    function returnChainId()  public view returns(uint64) {
+        uint64 chainId;
+
+        assembly {
+            chainId := chainid()
+        }
+
+        return chainId;
+    }
+
+    function getContractChainId(address contractAddress) public view returns(uint64){
+        uint64 contractChainId;
+
+        assembly {
+            contractChainId := extcodehash(contractAddress)
+        }
+        return contractChainId;
     }
 }
