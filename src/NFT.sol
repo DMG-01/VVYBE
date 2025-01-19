@@ -50,11 +50,7 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
     return(nftTokenId,_tokenURI);
 }
 
-function mintBridgedNft(address addressToMintTo, string memory tokenUri) external {
-    if(msg.sender != CCIPRECEIVER) {
-        revert addressCannotCallThisFunction();
-    }
-}
+
 
 function burnNft(uint256 tokenId) public  {
 
