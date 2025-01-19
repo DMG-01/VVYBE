@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity  0.8.13;
+pragma solidity  0.8.21;
 
 import {IRouterClient} from "lib/chainlink-develop/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {BurnerAddress} from "src/Bridge/burnerAddress.sol";

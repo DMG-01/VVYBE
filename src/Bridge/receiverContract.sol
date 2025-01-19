@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity 0.8.21;
 
 import {NFT} from "src/NFT.sol";
 import {CCIPReceiver} from "lib/chainlink-develop/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
@@ -14,8 +14,8 @@ NFT nftAddressDeployer;
 /**********ERRORS */
 error invalidCaller();
 
-constructor(address routerAddress0) {
-i_routerAddress = routerAddress;
+constructor(address routerAddress0)(address routerAddress) {
+i_routerAddress = i_routerAddress;
 
 }
 
@@ -25,7 +25,7 @@ function onccipReceive(Client.Any2EVMMessage memory message) external {
  }
 
 address receiver = abi.decode(message.receiver, (address));
-string uri = string(message.data);
+string memory  uri = string(message.data);
 uint256 tokenId = abi.decode(message.tokenAmounts[0].tokenId, (uint256));
 
 NFT _nft = NFTDeployer.createNftCollection("WNFT", "WNFT");

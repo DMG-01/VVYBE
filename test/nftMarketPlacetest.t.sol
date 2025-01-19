@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.13;
+pragma solidity 0.8.21;
 
 import {Test} from "lib/forge-std /src/Test.sol";
 import {deployScript} from "script/deployerScript.script.sol";

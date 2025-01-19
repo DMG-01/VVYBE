@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.13;
+pragma solidity 0.8.21;
 
 import {deployScript} from "script/deployerScript.script.sol";
 import {E_Auction} from "src/E_Auction.sol";
