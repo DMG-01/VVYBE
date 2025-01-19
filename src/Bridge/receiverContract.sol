@@ -5,7 +5,7 @@ import {NFT} from "src/NFT.sol";
 import {CCIPReceiver} from "lib/chainlink-develop/contracts/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {NFTDeployer} from "src/nftDeployer.sol";
 import {Client} from "lib/chainlink-develop/contracts/src/v0.8/ccip/libraries/Client.sol";
-import {BridgeNft} from "src/Bridge/bridgeNft.sol";
+import {BridgedNft} from "src/Bridge/bridgedNFT.sol";
 
 contract NftBridgeReceiverContract is CCIPReceiver {
     address public i_routerAddress;
@@ -25,13 +25,15 @@ contract NftBridgeReceiverContract is CCIPReceiver {
             revert invalidCaller();
         }
 
+
         // Decode receiver address, token URI, and token ID
         address receiver = abi.decode(message.sender, (address));
         string memory uri = string(message.data);
-       uint256 tokenId = message.destTokenAmounts[0].amount; 
+       uint256 tokenId = message.destTokenAmounts[0].amount;
+      
 
         // Mint the NFT
-        BridgeNft nft = BridgeNft(BRIDGE_NFT);
+        BridgedNft nft = BridgedNft(BRIDGE_NFT);
         nft.mint(receiver, uri, tokenId);
     }
 }

@@ -17,7 +17,7 @@ constructor(string memory _name, string memory _symbol, address _RECEIVER_CONTRA
 }
 
 
-function mint (address to, string tokenUri, address tokenId) external returns(uint256, string memory) {
+function mint (address to, string memory  tokenUri, uint256 tokenId) external returns(uint256, string memory) {
     if(msg.sender != RECEIVER_CONTRACT_ADDRESS) {
         revert invalidCaller();
     }
