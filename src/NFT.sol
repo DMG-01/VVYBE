@@ -23,10 +23,12 @@
     error tokenPropertiesIsNotEqualToTokenLength(uint256 propertiesLength, uint256 valuesLength);
     error onlyOwnerCanCallThisFunction();
     error addressCannotCallThisFunction();
+    
+    address  CCIPRECEIVER;
 
-
-constructor(string memory _name, string memory _symbol, address _owner) ERC721(_name, _symbol) {
+constructor(string memory _name, string memory _symbol, address _owner,address ccipReceiver) ERC721(_name, _symbol) {
     owner = _owner;
+    CCIPRECEIVER = ccipReceiver;
 }
 
 
@@ -50,7 +52,7 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
 }
 
 function mintBridgedNft(address addressToMintTo, string memory tokenUri) external {
-    if(msg.sender != address(CCIPReceiver)) {
+    if(msg.sender != CCIPRECEIVER) {
         revert addressCannotCallThisFunction();
     }
 }
