@@ -28,9 +28,13 @@ address receiver = abi.decode(message.receiver, (address));
 string uri = string(message.data);
 uint256 tokenId = abi.decode(message.tokenAmounts[0].tokenId, (uint256));
 
-
+NFT _nft = NFTDeployer.createNftCollection("WNFT", "WNFT");
+_nft.mintNewNft(receiver,[],[],tokenId); {
+    
+}
 
 }
 
 }
 // track in such a way that a person can mint more than one token id with the same smart contract and onn  the destination chain it would be a single smart contract with corresponding token id 
+// track the name and symbol of the nft 
