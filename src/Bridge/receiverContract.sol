@@ -27,7 +27,7 @@ contract NftBridgeReceiverContract is CCIPReceiver {
         // Decode receiver address, token URI, and token ID
         address receiver = abi.decode(message.sender, (address));
         string memory uri = string(message.data);
-       uint256 tokenId = message.destTokenAmounts[0].amount; // If the type is already uint256
+       uint256 tokenId = message.destTokenAmounts[0].amount; 
 
 
         // Create NFT collection and mint the NFT

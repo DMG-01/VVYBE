@@ -26,9 +26,8 @@
     
     address  CCIPRECEIVER;
 
-constructor(string memory _name, string memory _symbol, address _owner,address ccipReceiver) ERC721(_name, _symbol) {
+constructor(string memory _name, string memory _symbol, address _owner) ERC721(_name, _symbol) {
     owner = _owner;
-    CCIPRECEIVER = ccipReceiver;
 }
 
 
