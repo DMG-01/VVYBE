@@ -7,7 +7,7 @@ import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Client} from "lib/chainlink-develop/contracts/src/v0.8/ccip/libraries/Client.sol";
 import {IERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import {IERC721Metadata} from "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import {IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
+//import {IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 
 contract sourceChainNftBridge  {
 
@@ -70,7 +70,7 @@ contract sourceChainNftBridge  {
     }
 
     function isERC721(address token) internal view returns (bool) {
-        return IERC165(token).supportsInterface(0x80ac58cd);
+    //    return IERC165(token).supportsInterface(0x80ac58cd);
     }
 
     function returnChainId()  public view returns(uint64) {  

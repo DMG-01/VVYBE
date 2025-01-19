@@ -4,6 +4,7 @@
  import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
  import {Base64} from "lib/openzeppelin-contracts/contracts/utils/Base64.sol";
  import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
+ import {CCIPReceiver} from "src/Bridge/receiverContract.sol";
 
   contract NFT is ERC721 {
 
@@ -21,6 +22,7 @@
 
     error tokenPropertiesIsNotEqualToTokenLength(uint256 propertiesLength, uint256 valuesLength);
     error onlyOwnerCanCallThisFunction();
+    error addressCannotCallThisFunction();
 
 
 constructor(string memory _name, string memory _symbol, address _owner) ERC721(_name, _symbol) {
@@ -47,6 +49,11 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
     return(nftTokenId,_tokenURI);
 }
 
+function mintBridgedNft(address addressToMintTo, string memory tokenUri) external {
+    if(msg.sender != address(CCIPReceiver)) {
+        revert addressCannotCallThisFunction();
+    }
+}
 
 function burnNft(uint256 tokenId) public  {
 

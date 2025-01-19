@@ -29,9 +29,7 @@ string uri = string(message.data);
 uint256 tokenId = abi.decode(message.tokenAmounts[0].tokenId, (uint256));
 
 NFT _nft = NFTDeployer.createNftCollection("WNFT", "WNFT");
-_nft.mintNewNft(receiver,[],[],tokenId); {
-    
-}
+//_nft.mintNewNft(receiver,[],[],tokenId); 
 
 }
 
