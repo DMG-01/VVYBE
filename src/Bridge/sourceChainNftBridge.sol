@@ -45,7 +45,7 @@ contract sourceChainNftBridge  {
         );
 
  string memory newTokenUri = string(abi.encodePacked(tokenUri, jsonAddTokenUri));
-    bytes memory data = bytes(newTokenUri);
+    bytes memory data = abi.encode(newTokenUri,nftToken);
 
 
 

@@ -6,6 +6,8 @@ import {Script} from "lib/forge-std /src/Script.sol";
 import {NFT} from "src/NFT.sol";
 import { NFTDeployer} from "src/nftDeployer.sol";
 import {NftMarketPlace} from "src/nftMarketPlace.sol";
+import {BridgedNft} from "src/Bridge/bridgedNFT.sol";
+//import 
 
 
 contract deployScript is Script {
