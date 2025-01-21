@@ -11,6 +11,7 @@ contract NftBridgeReceiverContract is CCIPReceiver {
     address public i_routerAddress;
     NFT public nftAddressDeployer;
     address BRIDGE_NFT;
+    uint256 tokenIds = 1;
 
     /**********ERRORS */
     error invalidCaller();
@@ -29,7 +30,7 @@ contract NftBridgeReceiverContract is CCIPReceiver {
         // Decode receiver address, token URI, and token ID
         address receiver = abi.decode(message.sender, (address));
         string memory uri = string(message.data);
-       uint256 tokenId = message.destTokenAmounts[0].amount;
+        uint256 tokenId = tokenIds++;
       
 
         // Mint the NFT
