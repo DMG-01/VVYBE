@@ -9,16 +9,15 @@ import {BridgedNft} from "src/Bridge/bridgedNFT.sol";
 
 contract NftBridgeReceiverContract is CCIPReceiver {
     address public i_routerAddress;
-    NFT public nftAddressDeployer;
-    address BRIDGE_NFT;
-    uint256 tokenIds = 1;
+
+    mapping(address => bool) isMinted;
+    mapping(address => address) addressSourceChainToDestinationChain;
 
     /**********ERRORS */
     error invalidCaller();
 
-    constructor(address routerAddress, address bridgeNft) CCIPReceiver(routerAddress) {
+    constructor(address routerAddress) CCIPReceiver(routerAddress) {
         i_routerAddress = routerAddress;
-        BRIDGE_NFT = bridgeNft;
     }
 
     function _ccipReceive(Client.Any2EVMMessage memory message) internal override {
@@ -29,12 +28,19 @@ contract NftBridgeReceiverContract is CCIPReceiver {
 
         // Decode receiver address, token URI, and token ID
         address receiver = abi.decode(message.sender, (address));
-        (string memory uri, address nftToken) = abi.decode(message.data,(string,address));
-        uint256 tokenId = tokenIds++;
-      
+        (string memory uri, address nftToken,uint256 tokenId) = abi.decode(message.data,(string,address,uint256));
+        
+            
+         if(isMinted[nftToken]) {
+           address tokenDestinationAddress = addressSourceChainToDestinationChain[nftToken];
+           BridgedNft(tokenDestinationAddress).mint(receiver,uri,tokenId);
+         } else {
+            isMinted[nftToken] = true;
+            BridgedNft newBridgedNft = new BridgedNft()
+         }
 
         // Mint the NFT
-        BridgedNft nft = BridgedNft(BRIDGE_NFT);
+        BridgedNft nft = BridgedNft;
         nft.mint(receiver, uri, tokenId);
     }
 }
