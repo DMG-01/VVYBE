@@ -6,6 +6,7 @@ import {BurnerAddress} from "src/Bridge/burnerAddress.sol";
 import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Client} from "lib/chainlink-develop/contracts/src/v0.8/ccip/libraries/Client.sol";
 import {IERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721"
 import {IERC721Metadata} from "lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 //import {IERC165} from "lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 
@@ -29,7 +30,8 @@ contract sourceChainNftBridge  {
         }
 
         string memory tokenUri = IERC721Metadata(nftToken).tokenURI(tokenId);
-        
+        string tokenName = IERC721Metadata(nftToken).name();
+        string tokenSymbol = IERC721Metadata(nftToken).symbol();
 
         
          IERC721(nftToken).transferFrom(msg.sender, address(burnerAddress), tokenId);
@@ -45,7 +47,7 @@ contract sourceChainNftBridge  {
         );
 
  string memory newTokenUri = string(abi.encodePacked(tokenUri, jsonAddTokenUri));
-    bytes memory data = abi.encode(newTokenUri,nftToken,tokenId);
+    bytes memory data = abi.encode(newTokenUri,nftToken,tokenId,tokenName,tokenSymbol);
 
 
 
