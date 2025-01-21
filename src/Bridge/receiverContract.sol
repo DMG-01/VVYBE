@@ -30,7 +30,7 @@ contract NftBridgeReceiverContract is CCIPReceiver {
 
         // Decode receiver address, token URI, and token ID
         address receiver = abi.decode(message.sender, (address));
-        (string memory uri, address nftToken,uint256 tokenId,string tokenName, string tokenSymbol) = abi.decode(message.data,(string,address,uint256,string,string));
+        (string memory uri, address nftToken,uint256 tokenId,string memory tokenName, string memory tokenSymbol) = abi.decode(message.data,(string,address,uint256,string,string));
         
             
          if(isMinted[nftToken]) {
@@ -38,14 +38,15 @@ contract NftBridgeReceiverContract is CCIPReceiver {
            BridgedNft(tokenDestinationAddress).mint(receiver,uri,tokenId);
          } else {
             isMinted[nftToken] = true;
-            string tokenNewName = abi.encodePacked(tokenNameInitials,tokenName);
-            string newTokenSymbol = abi.encodePacked(tokenInitials,tokenSymbol);
-            BridgedNft newBridgedNft = new BridgedNft(tokenNewName,tokenNewSymbol,address(this));
-            addressSourceChainToDestinationChain[nftToken] = newBridgedNft;
+            string memory  tokenNewName = string(abi.encodePacked(tokenNameInitials,tokenName));
+            string memory  newTokenSymbol = string(abi.encodePacked(tokenInitials,tokenSymbol));
+            BridgedNft newBridgedNft = new BridgedNft(tokenNewName,newTokenSymbol,address(this));
+            addressSourceChainToDestinationChain[nftToken] = address(newBridgedNft);
+            newBridgedNft.mint(receiver,uri,tokenId);
          }
 
         // Mint the NFT
-        BridgedNft nft = BridgedNft;
-        nft.mint(receiver, uri, tokenId);
+      //  BridgedNft nft = BridgedNft;
+       // nft.mint(receiver, uri, tokenId);
     }
 }
