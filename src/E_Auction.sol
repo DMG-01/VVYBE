@@ -45,6 +45,8 @@ mapping(address => bool) adminAddress;
 event auctionPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
 event bidPlaced(uint256 _auctionId,address callerAddress,TokenAuctionDetails _tokenAuctionDetails);
 event auctionClaimed(address callerAddress, uint256 timeOfClaim, uint256 _auctionId, TokenAuctionDetails);
+event etherHasBeenWithdrawn(uint256 amount);
+event tokenHasBeenWithdrawn(address tokenAddress, uint256 tokenAmount);
 
 error addressIsNotAContract(address tokenAddressToCheck);
 error invalidTokenOwner(address tokenOwner, address allegedOwner);
@@ -251,9 +253,11 @@ function withdrawEther(uint256 amount) external {
     if(amount == 0) { 
     (bool success,) = DEPLOYER.call{value: address(this).balance}("");
      require(success);
+     emit etherHasBeenWithdrawn(address(this).balance);
     }else {
          (bool success,) = DEPLOYER.call{value: amount}("");
           (success);
+           emit etherHasBeenWithdrawn(amount);
     }
    
 }
@@ -267,8 +271,10 @@ function withdrawTokenBalance(address tokenAddress, uint256 tokenAmount) externa
     if(tokenAmount == 0) {
         uint256 contractBalance = ERC20(tokenAddress).balanceOf(address(this));
         ERC20(tokenAddress).transfer(DEPLOYER,contractBalance);
+        emit tokenHasBeenWithdrawn(tokenAddress,contractBalance);
     } else {
         ERC20(tokenAddress).transfer(DEPLOYER,tokenAmount);
+        emit tokenHasBeenWithdrawn(tokenAddress,tokenAmount);
     }
 }
 
