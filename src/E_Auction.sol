@@ -60,6 +60,7 @@ error invalidMethodOfPayment(address methodOfPayment);
 error youCannotBidWithErc20Token();
 error onlyAdminCanCallThisFunction();
 error youCannotRemoveInitialDeployerFromAdmin();
+error onlyDeployerAddressCanCallThisFunction();
 
 modifier isAdmin {
     if(adminAddress[msg.sender] != true) {
@@ -240,6 +241,21 @@ function isErc721Token(address tokenAddress) public view returns(bool) {
      }
 
 
+}
+
+function withdrawEther(uint256 amount) external {
+    if(msg.sender != DEPLOYER) {
+        revert onlyDeployerAddressCanCallThisFunction();
+    }
+
+    if(amount == 0) { 
+    (bool success,) = DEPLOYER.call{value: address(this).balance}("");
+     require(success);
+    }else {
+         (bool success,) = DEPLOYER.call{value: amount}("");
+          (success);
+    }
+   
 }
 
 
