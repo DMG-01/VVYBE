@@ -258,6 +258,20 @@ function withdrawEther(uint256 amount) external {
    
 }
 
+function withdrawTokenBalance(address tokenAddress, uint256 tokenAmount) external {
+    if(msg.sender != DEPLOYER) {
+        revert onlyDeployerAddressCanCallThisFunction();
+    } 
+
+    ERC20(tokenAddress).approve(DEPLOYER,type(uint256).max);
+    if(tokenAmount == 0) {
+        uint256 contractBalance = ERC20(tokenAddress).balanceOf(address(this));
+        ERC20(tokenAddress).transfer(DEPLOYER,contractBalance);
+    } else {
+        ERC20(tokenAddress).transfer(DEPLOYER,tokenAmount);
+    }
+}
+
 
 
 
