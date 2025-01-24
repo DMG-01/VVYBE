@@ -34,7 +34,7 @@ constructor(string memory _name, string memory _symbol, address _owner) ERC721(_
 
 
 
-function mintNewNft(address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) public  returns(uint256, string memory){
+function mintNewNft(string calldata ipfsLocation,address addressToMintTo, string[] memory tokenProperties, string[] memory tokenValues,uint256 nftTokenId) public  returns(uint256, string memory){
 
     if(msg.sender != owner) {
         revert onlyOwnerCanCallThisFunction();
@@ -42,7 +42,7 @@ function mintNewNft(address addressToMintTo, string[] memory tokenProperties, st
     if(tokenProperties.length != tokenValues.length) {
         revert tokenPropertiesIsNotEqualToTokenLength(tokenProperties.length, tokenValues.length);
     }
-    string memory _tokenURI = generateUri(tokenProperties,tokenValues);
+    string memory _tokenURI = generateUri(ipfsLocation,tokenProperties,tokenValues);
     tokenIdToURI[nftTokenId] = _tokenURI;
     _mint(addressToMintTo, nftTokenId);
 
@@ -61,6 +61,7 @@ function burnNft(uint256 tokenId) public  {
 
 
 function generateUri(
+    string memory ipfsLocation, 
     string[] memory tokenProperties,
     string[] memory tokenValues
 ) internal pure returns (string memory) {
@@ -69,7 +70,17 @@ function generateUri(
         "Properties and values length mismatch"
     );
 
+    
     string memory properties = "{";
+
+    
+    properties = string(
+        abi.encodePacked(
+            properties,
+            '"image": "', ipfsLocation, '", '
+        )
+    );
+
     
     for (uint256 i = 0; i < tokenProperties.length; i++) {
         properties = string(
@@ -80,9 +91,11 @@ function generateUri(
             )
         );
     }
+
     
     properties = string(abi.encodePacked(properties, "}"));
 
+    
     return string(
         abi.encodePacked(
             "data:application/json;base64,",
@@ -90,6 +103,7 @@ function generateUri(
         )
     );
 }
+
 
 
 /***************GETTER FUNCTION *****/
