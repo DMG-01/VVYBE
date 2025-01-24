@@ -53,7 +53,7 @@ function testCreateNftCollectionWorks() public {
 function testUser2CannotCallMintFunction() public user1DeploysNFT {
     vm.startPrank(USER2);
     vm.expectRevert(NFT.onlyOwnerCanCallThisFunction.selector);
-    NFT_ADDRESS.mintNewNft(USER2,tokenProperties,tokenValues,3);
+    NFT_ADDRESS.mintNewNft(IPFS_LOCATION,USER2,tokenProperties,tokenValues,3);
 }
 
 
