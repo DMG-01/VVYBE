@@ -19,6 +19,7 @@ address USER2 = makeAddr("USER2");
 address nftDeployer;
 string[] tokenProperties;
 string[] tokenValues;
+string IPFS_LOCATION = "ipfs://QmExampleCidOfImage";
 
 function setUp() public {
 
@@ -43,20 +44,20 @@ function testDeployerIsContractOwner() public view {
 function testMintNewNftFunctionRevertsWhenCalledByNonOwner() public  {
     vm.startPrank(USER1);
     vm.expectRevert(NFT.onlyOwnerCanCallThisFunction.selector);
-    nft.mintNewNft(USER2,tokenProperties,tokenValues,TOKEN_ID);
+    nft.mintNewNft(IPFS_LOCATION,USER2,tokenProperties,tokenValues,TOKEN_ID);
 }
 
 function testmintNewNftRevetsWithUnequalPropertiesAndValueLength() public {
 tokenProperties.push("age");
 vm.startPrank(nftDeployer);
 vm.expectRevert(abi.encodeWithSelector((NFT.tokenPropertiesIsNotEqualToTokenLength.selector),tokenProperties.length,tokenValues.length));
-nft.mintNewNft(USER2,tokenProperties,tokenValues,TOKEN_ID);
+nft.mintNewNft(IPFS_LOCATION,USER2,tokenProperties,tokenValues,TOKEN_ID);
 
 }
 
 function testMintTokenWorks() public {   
     vm.startPrank(nftDeployer);
-   (,string  memory tokenUri)= nft.mintNewNft(USER2,tokenProperties,tokenValues,TOKEN_ID);
+   (,string  memory tokenUri)= nft.mintNewNft(IPFS_LOCATION,USER2,tokenProperties,tokenValues,TOKEN_ID);
     assertEq(nft.ownerOf(TOKEN_ID),USER2);
     assertEq(tokenUri,nft.tokenURI(TOKEN_ID));
 }

@@ -21,7 +21,7 @@ string NFT_SYMBOL = "U_1_N";
 NFT NFT_ADDRESS;
 string[] tokenProperties;
 string[] tokenValues;
-string IPFS_LOCATION = "ipfs://QmExampleCidOfImage"
+string IPFS_LOCATION = "ipfs://QmExampleCidOfImage";
 
 
 modifier user1DeploysNFT {
