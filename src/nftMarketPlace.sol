@@ -45,6 +45,7 @@ contract NftMarketPlace is IERC721Receiver {
     error youCannotRemoveInitialDeployer();
     error youCannotChangeThePriceOfNftSinceItHasBeenSold();
     error youCannotCallThisFunctionSinceNftHasBeenSold();
+    error onlyDeployerAddressCanCallThisFunction();
 
 
     /*********************EVENTS ***/
@@ -55,6 +56,8 @@ contract NftMarketPlace is IERC721Receiver {
     event contractAddressPercentageFeeHasBeenChanged(address callerAddress, uint256 newPercentageFee);
     event newAdminHasBeenAdded(address callerAddress, address newAdminAddress);
     event adminHasBeenRemoved(address callerAddress, address adminAddressToRemove);
+    event etherHasBeenWithdrawn(uint256 amount);
+    event tokenHasBeenWithdrawn(address tokenAddress, uint256 amount);
 
 
      function onERC721Received(
@@ -120,6 +123,8 @@ function changeNftPrice(uint256 _saleId, uint256 newAmount, address addressOfMet
 
 
 
+
+
 function removeNftFromSale(uint256 _saleId) public {
   if(msg.sender != idToNftDetails[_saleId].sellerAddress) {
     revert onlyNftOwnerCanCallThisFunction();
@@ -135,6 +140,39 @@ function removeNftFromSale(uint256 _saleId) public {
 
 }
 
+
+function withdrawEther(uint256 amount) external {
+    if(msg.sender != DEPLOYER) {
+        revert onlyDeployerAddressCanCallThisFunction();
+    }
+
+    if(amount == 0) { 
+    (bool success,) = DEPLOYER.call{value: address(this).balance}("");
+     require(success);
+     emit etherHasBeenWithdrawn(address(this).balance);
+    }else {
+         (bool success,) = DEPLOYER.call{value: amount}("");
+          (success);
+           emit etherHasBeenWithdrawn(amount);
+    }
+   
+}
+
+function withdrawTokenBalance(address tokenAddress, uint256 tokenAmount) external {
+    if(msg.sender != DEPLOYER) {
+        revert onlyDeployerAddressCanCallThisFunction();
+    } 
+
+    ERC20(tokenAddress).approve(DEPLOYER,type(uint256).max);
+    if(tokenAmount == 0) {
+        uint256 contractBalance = ERC20(tokenAddress).balanceOf(address(this));
+        ERC20(tokenAddress).transfer(DEPLOYER,contractBalance);
+        emit tokenHasBeenWithdrawn(tokenAddress,contractBalance);
+    } else {
+        ERC20(tokenAddress).transfer(DEPLOYER,tokenAmount);
+        emit tokenHasBeenWithdrawn(tokenAddress,tokenAmount);
+    }
+}
 
 function changePercentageFee(uint256 newPercentageFee) public onlyAdmin {
 percentageFee = newPercentageFee;
