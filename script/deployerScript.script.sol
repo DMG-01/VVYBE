@@ -25,7 +25,7 @@ contract deployScript is Script {
        BridgedNft bridgedNft = new BridgedNft("vvybe","vvybe",msg.sender);
        BurnerAddress burnerAddress = new BurnerAddress();
         vm.stopBroadcast();
-        return (e_auction,nft,nftDeployer,nftMarketPlace,BridgedNft,burnerAddress);
+        return (e_auction,nft,nftDeployer,nftMarketPlace,bridgedNft,burnerAddress);
 
 
     }
