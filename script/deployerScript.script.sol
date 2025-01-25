@@ -18,19 +18,20 @@ import {IRouterClient} from "lib/chainlink-develop/contracts/src/v0.8/ccip/inter
 contract deployScript is Script {
 
     address SEPOLIA_ROUTER_ADDRESS = 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59;
+    address BASE_SEPOLIA_ROUTER_ADDRESS = 0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93;
 
-    function run() external returns(E_Auction,NFT,NFTDeployer,NftMarketPlace,BridgedNft,BurnerAddress,sourceChainNftBridge,NftBridgeReceiverContract) {
+    function run() external returns(E_Auction,NFT,NFTDeployer,NftMarketPlace/*,BridgedNft,BurnerAddress,sourceChainNftBridge,NftBridgeReceiverContract*/) {
         vm.startBroadcast();
        E_Auction e_auction = new E_Auction();
        NFT nft = new NFT("MIMI","MIMI",msg.sender);
        NFTDeployer nftDeployer = new NFTDeployer(); 
        NftMarketPlace nftMarketPlace = new NftMarketPlace();
-       BridgedNft bridgedNft = new BridgedNft("vvybe","vvybe",msg.sender);
-       BurnerAddress burnerAddress = new BurnerAddress();
-       sourceChainNftBridge _sourceChainNftBridge = new sourceChainNftBridge(SEPOLIA_ROUTER_ADDRESS);
-       NftBridgeReceiverContract nftBridgeReceiverContract  = new NftBridgeReceiverContract(SEPOLIA_ROUTER_ADDRESS);
+    //   BridgedNft bridgedNft = new BridgedNft("vvybe","vvybe",msg.sender);
+    //   BurnerAddress burnerAddress = new BurnerAddress();
+     //  sourceChainNftBridge _sourceChainNftBridge = new sourceChainNftBridge(SEPOLIA_ROUTER_ADDRESS);
+      // NftBridgeReceiverContract nftBridgeReceiverContract  = new NftBridgeReceiverContract(BASE_SEPOLIA_ROUTER_ADDRESS);
         vm.stopBroadcast();
-        return (e_auction,nft,nftDeployer,nftMarketPlace,bridgedNft,burnerAddress,_sourceChainNftBridge,nftBridgeReceiverContract);
+        return (e_auction,nft,nftDeployer,nftMarketPlace/*,bridgedNft,burnerAddress,_sourceChainNftBridge,nftBridgeReceiverContract*/);
 
 
     }

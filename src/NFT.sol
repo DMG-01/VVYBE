@@ -4,7 +4,7 @@
  import {ERC721} from "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
  import {Base64} from "lib/openzeppelin-contracts/contracts/utils/Base64.sol";
  import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
- import {CCIPReceiver} from "src/Bridge/receiverContract.sol";
+ //import {CCIPReceiver} from "src/Bridge/receiverContract.sol";
 
   contract NFT is ERC721 {
 
