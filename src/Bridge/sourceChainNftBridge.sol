@@ -17,8 +17,8 @@ contract sourceChainNftBridge  {
     /*******ERRORS */
     error notErc721Token(address tokenAddress);
 
-    constructor(IRouterClient _routerClient) {
-        routerClient = _routerClient;
+    constructor(address _routerClient) {
+        routerClient = IRouterClient(_routerClient);
     }
     function sendNftToDestChain(uint64 destChainSelector,  bytes calldata receiver, address nftToken, uint256 tokenId) external {
         

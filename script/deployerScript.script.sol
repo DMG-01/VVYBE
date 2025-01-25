@@ -8,15 +8,18 @@ import { NFTDeployer} from "src/nftDeployer.sol";
 import {NftMarketPlace} from "src/nftMarketPlace.sol";
 import {BridgedNft} from "src/Bridge/bridgedNFT.sol";
 import {BurnerAddress} from "src/Bridge/burnerAddress.sol";
-//import {NftBridgeReceiverContract} from "src/Bridge/receiverContract.sol";
-//import {sourceChainNftBridge} from "src/Bridge/sourceChainNftBridge.sol";
+import {NftBridgeReceiverContract} from "src/Bridge/receiverContract.sol";
+import {sourceChainNftBridge} from "src/Bridge/sourceChainNftBridge.sol";
+import {IRouterClient} from "lib/chainlink-develop/contracts/src/v0.8/ccip/interfaces/IRouterClient.sol";
 
 //import 
 
 
 contract deployScript is Script {
 
-    function run() external returns(E_Auction,NFT,NFTDeployer,NftMarketPlace,BridgedNft,BurnerAddress) {
+    address SEPOLIA_ROUTER_ADDRESS = 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59;
+
+    function run() external returns(E_Auction,NFT,NFTDeployer,NftMarketPlace,BridgedNft,BurnerAddress,sourceChainNftBridge,NftBridgeReceiverContract) {
         vm.startBroadcast();
        E_Auction e_auction = new E_Auction();
        NFT nft = new NFT("MIMI","MIMI",msg.sender);
@@ -24,8 +27,10 @@ contract deployScript is Script {
        NftMarketPlace nftMarketPlace = new NftMarketPlace();
        BridgedNft bridgedNft = new BridgedNft("vvybe","vvybe",msg.sender);
        BurnerAddress burnerAddress = new BurnerAddress();
+       sourceChainNftBridge _sourceChainNftBridge = new sourceChainNftBridge(SEPOLIA_ROUTER_ADDRESS);
+       NftBridgeReceiverContract nftBridgeReceiverContract  = new NftBridgeReceiverContract(SEPOLIA_ROUTER_ADDRESS);
         vm.stopBroadcast();
-        return (e_auction,nft,nftDeployer,nftMarketPlace,bridgedNft,burnerAddress);
+        return (e_auction,nft,nftDeployer,nftMarketPlace,bridgedNft,burnerAddress,_sourceChainNftBridge,nftBridgeReceiverContract);
 
 
     }

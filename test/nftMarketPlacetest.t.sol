@@ -33,7 +33,7 @@ contract nftMarketPlaceTest is Test {
     
     function setUp() public {
         deployer = new deployScript();
-        (,,,nftMarketPlace,,) = deployer.run();
+        (,,,nftMarketPlace,,,,) = deployer.run();
           usdt = new ERC20Mock("USDT","USDT",USER2,10E18);
           ajdNft = new ERC721Mock("AJDNFT","AJDNFT");
          ajdNft.mint(USER1,TOKEN_ID);

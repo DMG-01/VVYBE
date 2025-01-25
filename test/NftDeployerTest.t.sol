@@ -32,7 +32,7 @@ _;
 
 function setUp() public {
     deployer = new deployScript();
-    (,,nftDeployer,,,) = deployer.run();
+    (,,nftDeployer,,,,,) = deployer.run();
     console.log("nft deployer contract has been deployed");
     
 tokenProperties.push("name");
