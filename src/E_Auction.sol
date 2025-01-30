@@ -42,9 +42,9 @@ mapping(address => bool) adminAddress;
 
 /******************EVENTS********* */
 
-event auctionPlaced(uint256 _auctionId, TokenAuctionDetails _tokenAuctionDetails);
-event bidPlaced(uint256 _auctionId,address callerAddress,TokenAuctionDetails _tokenAuctionDetails);
-event auctionClaimed(address callerAddress, uint256 timeOfClaim, uint256 _auctionId, TokenAuctionDetails);
+event auctionPlaced(uint256 indexed  _auctionId, TokenAuctionDetails _tokenAuctionDetails);
+event bidPlaced(uint256 indexed _auctionId,address indexed callerAddress,TokenAuctionDetails _tokenAuctionDetails);
+event auctionClaimed(address indexed callerAddress, uint256 timeOfClaim, uint256 _auctionId, TokenAuctionDetails);
 event etherHasBeenWithdrawn(uint256 amount);
 event tokenHasBeenWithdrawn(address tokenAddress, uint256 tokenAmount);
 
