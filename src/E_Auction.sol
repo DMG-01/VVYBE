@@ -116,7 +116,7 @@ modifier isAdmin {
 if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
     if(amountToTransfer >= auctionIdToTokenDetails[_auctionId].startingAmount) {
 
-     if(amountToTransfer < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
+     if(amountToTransfer <= auctionIdToTokenDetails[_auctionId].currentHighestBid) {
             revert bidPlacedIsLessThanTheCurrentHighestBid(amountToTransfer, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             
             }
@@ -155,7 +155,7 @@ if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
         }
 
         if(auctionIdToTokenDetails[_auctionId].methodOfPayment == address(0)) {
-            if(msg.value < auctionIdToTokenDetails[_auctionId].currentHighestBid) {
+            if(msg.value <= auctionIdToTokenDetails[_auctionId].currentHighestBid) {
                 revert bidPlacedIsLessThanTheCurrentHighestBid(msg.value, auctionIdToTokenDetails[_auctionId].currentHighestBid); 
             }
             address previousHighestBidder =  auctionIdToTokenDetails[_auctionId].currentHighestBidder;
