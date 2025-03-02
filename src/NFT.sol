@@ -8,9 +8,9 @@
 
   contract NFT is ERC721 {
 
-    address owner;
+   address owner;
 
-    
+     /*@new */ uint256 totalCount
 
     /**********EVENTS ****/
     event newTokenMinted(address mintedTo,uint256 tokenId,string tokenUri, uint256 timeOfMint);
@@ -47,7 +47,7 @@ function mintNewNft(string calldata ipfsLocation,address addressToMintTo, string
     string memory _tokenURI = generateUri(ipfsLocation,tokenProperties,tokenValues);
     tokenIdToURI[nftTokenId] = _tokenURI;
     _mint(addressToMintTo, nftTokenId);
-
+     totalCount++;
     emit newTokenMinted(addressToMintTo,nftTokenId,_tokenURI,block.timestamp);
     return(nftTokenId,_tokenURI);
 }
@@ -57,6 +57,7 @@ function mintNewNft(string calldata ipfsLocation,address addressToMintTo, string
 function burnNft(uint256 tokenId) public  {
 
     _burn(tokenId);
+    totalCount--;
     emit tokenHasBeenBurned(msg.sender,tokenId,block.timestamp);
 
 }
@@ -110,6 +111,11 @@ function generateUri(
 
 /***************GETTER FUNCTION *****/
 
+
+function returnTotalNftCount() public returns(uint256) {
+
+    return totalCount;
+}
 function tokenURI(uint256 _tokenId) public view override returns(string memory ) {
     return tokenIdToURI[_tokenId];
 }
