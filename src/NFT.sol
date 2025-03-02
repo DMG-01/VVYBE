@@ -10,6 +10,8 @@
 
     address owner;
 
+    
+
     /**********EVENTS ****/
     event newTokenMinted(address mintedTo,uint256 tokenId,string tokenUri, uint256 timeOfMint);
     event tokenHasBeenBurned(address burnerAddress, uint256 tokenId, uint256 timeOfBurn);

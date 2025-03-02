@@ -112,7 +112,7 @@ modifier isAdmin {
             revert bidHasClosed(auctionIdToTokenDetails[_auctionId].auctionEndTime); 
         } 
 
-       
+       //@check for time
 if(auctionIdToTokenDetails[_auctionId].methodOfPayment != address(0)) {
     if(amountToTransfer >= auctionIdToTokenDetails[_auctionId].startingAmount) {
 
